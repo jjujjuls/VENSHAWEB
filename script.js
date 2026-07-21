@@ -5,6 +5,26 @@ const form = document.getElementById('bookingForm');
 const formMessage = document.getElementById('formMessage');
 const reveals = document.querySelectorAll('.reveal');
 
+/* Redirect if coming-soon mode is active (fallback when index.html is cached) */
+fetch('/api/settings/status')
+  .then((r) => r.json())
+  .then((data) => {
+    if (data.comingSoon && !window.location.pathname.includes('coming-soon')) {
+      window.location.replace('/coming-soon.html');
+    }
+  })
+  .catch(() => {});
+
+/* Show "My account" in nav when signed in */
+try {
+  const stored = JSON.parse(localStorage.getItem('vensha_user') || 'null');
+  const signInLink = document.querySelector('.nav-signin');
+  if (stored && signInLink) {
+    signInLink.textContent = 'Account';
+    signInLink.href = stored.role === 'ADMIN' ? '/admin.html' : '/account.html';
+  }
+} catch { /* ignore */ }
+
 /* ── Sticky nav theme adapts to scroll position ── */
 function updateNavTheme() {
   if (!navShell) return;
@@ -67,8 +87,9 @@ if (form) {
     const name = data.get('name')?.toString().trim() || '';
     const email = data.get('email')?.toString().trim() || '';
     const phone = data.get('phone')?.toString().trim() || '';
+    const treatment = data.get('treatment')?.toString().trim() || '';
 
-    if (!name || !email || !phone) {
+    if (!name || !email || !phone || !treatment) {
       formMessage.textContent = 'Please complete the required fields so we can contact you.';
       formMessage.className = 'form-message error';
       return;
@@ -77,16 +98,48 @@ if (form) {
     formMessage.textContent = 'Sending your request…';
     formMessage.className = 'form-message';
 
+    const payload = {
+      name,
+      email,
+      phone,
+      treatment,
+      date: data.get('date')?.toString() || '',
+      time: data.get('time')?.toString() || '',
+      message: data.get('message')?.toString().trim() || '',
+    };
+
     try {
+      const apiBase = window.VENSHA_API || '';
+      const response = await fetch(`${apiBase}/api/consultations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        formMessage.textContent = `Thank you, ${name}. Your consultation request has been sent. We will be in touch shortly.`;
+        formMessage.className = 'form-message success';
+        form.reset();
+        return;
+      }
+    } catch {
+      /* fall through to FormSubmit */
+    }
+
+    try {
+      const fallback = new FormData();
+      Object.entries(payload).forEach(([key, value]) => fallback.append(key, value));
+      fallback.append('_subject', 'New Consultation Request — VENSHASKIN');
+      fallback.append('_template', 'table');
+      fallback.append('_captcha', 'false');
+
       const response = await fetch('https://formsubmit.co/ajax/venshaskin@gmail.com', {
         method: 'POST',
-        body: data,
+        body: fallback,
         headers: { Accept: 'application/json' },
       });
 
-      if (!response.ok) {
-        throw new Error('Submission failed');
-      }
+      if (!response.ok) throw new Error('Submission failed');
 
       formMessage.textContent = `Thank you, ${name}. Your consultation request has been sent to our team. We will be in touch shortly.`;
       formMessage.className = 'form-message success';

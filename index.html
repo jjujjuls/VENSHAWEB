@@ -19,6 +19,9 @@
   <body>
     <div class="nav-shell" id="navShell" data-theme="light">
       <nav class="nav container">
+        <a class="nav-logo" href="#" aria-label="VENSHASKIN home">
+          <img src="assets/images/logo-placeholder.png" alt="" width="45" height="45" />
+        </a>
         <div class="nav-side nav-left">
           <a href="#treatment">Treatment</a>
           <a href="#technologies">Technologies</a>
@@ -26,6 +29,7 @@
         <a class="brand" href="#">VENSHA<span>SKIN</span></a>
         <div class="nav-side nav-right">
           <a href="#results">Results</a>
+          <a href="/login.html" class="nav-signin">Sign in</a>
           <a class="nav-book" href="#book">Book</a>
         </div>
         <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
@@ -40,6 +44,8 @@
         <a href="#specs">Specifications</a>
         <a href="#faq">FAQ</a>
         <a href="#book">Book Consultation</a>
+        <a href="/login.html">Sign in</a>
+        <a href="/account.html">My account</a>
       </div>
     </div>
 
@@ -55,7 +61,7 @@
             <a class="btn btn-primary" href="#book">Book a consultation</a>
             <a class="btn btn-ghost" href="#technologies">Explore technologies</a>
           </div>
-          <p class="hero-tagline">Pursue beauty &middot; Pursue health</p>
+          <p class="hero-tagline">Sculpt &middot; Strengthen &middot; Radiate</p>
         </div>
         <div class="hero-visual reveal">
           <img
@@ -422,16 +428,7 @@
               Share your details and we will follow up to confirm your consultation request.
             </p>
           </div>
-          <form
-            id="bookingForm"
-            class="booking-form"
-            action="https://formsubmit.co/venshaskin@gmail.com"
-            method="POST"
-          >
-            <input type="hidden" name="_subject" value="New Consultation Request — VENSHASKIN" />
-            <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_captcha" value="false" />
-            <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
+          <form id="bookingForm" class="booking-form">
             <div class="form-grid">
               <label>
                 Full Name
@@ -447,7 +444,7 @@
               </label>
               <label>
                 Preferred Treatment Area
-                <select name="area" required>
+                <select name="treatment" required>
                   <option value="" disabled selected>Select treatment area</option>
                   <option>Face</option>
                   <option>Body</option>
@@ -457,7 +454,7 @@
               </label>
               <label>
                 Preferred Date
-                <input type="date" name="date" placeholder="dd/mm/yyyy" />
+                <input type="date" name="date" />
               </label>
               <label>
                 Preferred Time
@@ -507,7 +504,7 @@
       <div class="container footer-content">
         <div>
           <p class="eyebrow">VENSHASKIN</p>
-          <p class="muted">Pursue beauty &middot; Pursue health</p>
+          <p class="muted">Sculpt &middot; Strengthen &middot; Radiate</p>
         </div>
         <a class="btn btn-primary" href="#book">Request consultation</a>
       </div>

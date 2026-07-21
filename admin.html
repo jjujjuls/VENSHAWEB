@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin — VENSHASKIN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="portal.css" />
+  </head>
+  <body class="portal-body">
+    <header class="portal-header">
+      <div class="container">
+        <a class="portal-brand" href="/">VENSHA<span>SKIN</span></a>
+        <nav class="portal-nav">
+          <a href="/">View site</a>
+          <a href="#" id="logoutLink">Sign out</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="portal-main">
+      <h1 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:500;margin:0 0 1.5rem;">Admin Dashboard</h1>
+
+      <div class="toggle-row">
+        <div>
+          <strong>Coming Soon Mode</strong>
+          <p>When enabled, the public landing page shows only a &ldquo;Coming Soon&rdquo; screen. Login, admin, and account pages remain accessible.</p>
+        </div>
+        <button type="button" class="toggle-btn" id="comingSoonToggle">Loading…</button>
+      </div>
+
+      <div class="dash-stats" id="statsRow">
+        <div class="stat-box"><div class="num" id="statConsult">—</div><div class="lbl">Consultations</div></div>
+        <div class="stat-box"><div class="num" id="statMachine">—</div><div class="lbl">New machine inquiries</div></div>
+        <div class="stat-box"><div class="num" id="statUsers">—</div><div class="lbl">Clients</div></div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="dash-panel">
+          <h2>Recent consultations</h2>
+          <table class="data-table" id="consultTable">
+            <thead><tr><th>Name</th><th>Treatment</th><th>Date</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="dash-panel">
+          <h2>Machine purchase inquiries</h2>
+          <table class="data-table" id="machineTable">
+            <thead><tr><th>Client</th><th>Model</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      import { api, requireAuth, logout } from './portal.js';
+
+      document.getElementById('logoutLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        logout();
+      });
+
+      const toggle = document.getElementById('comingSoonToggle');
+      let comingSoon = false;
+
+      function renderToggle() {
+        toggle.textContent = comingSoon ? 'Coming Soon: ON' : 'Coming Soon: OFF';
+        toggle.classList.toggle('active', comingSoon);
+      }
+
+      toggle.addEventListener('click', async () => {
+        try {
+          const data = await api('/api/admin/settings/coming-soon', {
+            method: 'PUT',
+            body: { enabled: !comingSoon },
+          });
+          comingSoon = data.enabled;
+          renderToggle();
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+
+      const session = await requireAuth(['ADMIN']);
+      if (!session) throw new Error('Unauthorized');
+
+      const dash = await api('/api/admin/dashboard');
+      comingSoon = dash.comingSoon;
+      renderToggle();
+
+      document.getElementById('statConsult').textContent = dash.stats.consultations;
+      document.getElementById('statMachine').textContent = dash.stats.machineInquiries;
+      document.getElementById('statUsers').textContent = dash.stats.users;
+
+      document.querySelector('#consultTable tbody').innerHTML = dash.recentConsultations.length
+        ? dash.recentConsultations.map((c) => `
+          <tr>
+            <td>${c.name}</td>
+            <td>${c.treatment}</td>
+            <td>${new Date(c.createdAt).toLocaleDateString()}</td>
+          </tr>`).join('')
+        : '<tr><td colspan="3" style="color:#888;">No consultations yet.</td></tr>';
+
+      document.querySelector('#machineTable tbody').innerHTML = dash.recentMachineInquiries.length
+        ? dash.recentMachineInquiries.map((m) => `
+          <tr>
+            <td>${m.user.firstName} ${m.user.lastName}</td>
+            <td>${m.machineModel} ×${m.quantity}</td>
+            <td>${m.status}</td>
+          </tr>`).join('')
+        : '<tr><td colspan="3" style="color:#888;">No machine inquiries yet.</td></tr>';
+    </script>
+  </body>
+</html>

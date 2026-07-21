@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Account — VENSHASKIN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="portal.css" />
+  </head>
+  <body class="portal-body">
+    <header class="portal-header header-theme-light">
+      <div class="container header-inner">
+        <a class="portal-brand" href="/">VENSHA<span>SKIN</span></a>
+        <button class="portal-menu-toggle" type="button" aria-expanded="false" aria-label="Open navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav class="portal-nav">
+          <a href="/#book">Book consultation</a>
+          <a href="#notifications">Notifications</a>
+          <a href="#profile">Profile</a>
+          <button id="logoutDesktop" class="portal-btn ghost nav-logout logout-action">Sign out</button>
+        </nav>
+      </div>
+      <div class="mobile-drawer" aria-hidden="true">
+        <div class="mobile-drawer-inner">
+          <div class="mobile-drawer-header">
+            <a class="portal-brand" href="/">VENSHA<span>SKIN</span></a>
+            <button class="drawer-close" type="button" aria-label="Close menu">×</button>
+          </div>
+          <nav class="mobile-nav">
+            <a href="/#book">Book consultation</a>
+            <a href="#notifications">Notifications</a>
+            <a href="#profile">Profile</a>
+            <button id="logoutMobile" class="portal-btn ghost logout-action">Sign out</button>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="portal-main">
+      <div class="dashboard-shell">
+        <aside class="dashboard-sidebar">
+          <div class="sidebar-brand">
+            <span>Client Portal</span>
+            <h2 id="sidebarName"></h2>
+          </div>
+          <p class="sidebar-note">A refined space for your appointments, membership, and rewards.</p>
+          <nav class="sidebar-nav">
+            <a href="#overview" class="active">Dashboard</a>
+            <a href="#appointments">Appointments</a>
+            <a href="#messages">Messages</a>
+            <a href="#membership">Membership</a>
+            <a href="#rewards">Rewards</a>
+            <a href="#profile">Profile</a>
+          </nav>
+          <div class="sidebar-cta">
+            <a class="portal-btn ghost" href="/#book">Book Consultation</a>
+            <button id="logoutSidebar" class="portal-btn ghost logout-action">Log Out</button>
+          </div>
+        </aside>
+
+        <section class="dashboard-main">
+          <section class="dashboard-hero" id="overview" data-header-theme="light">
+            <div>
+              <p class="eyebrow">Welcome back,</p>
+              <h1 id="heroName"></h1>
+              <p class="hero-copy">We’re delighted to have you with VENSHA SKIN. Your membership is designed for luxury care, meaningful results, and curated appointments.</p>
+            </div>
+            <div class="hero-meta">
+              <span id="todayDate"></span>
+              <p>Enjoy a graceful, elevated experience all season.</p>
+            </div>
+          </section>
+
+          <section class="summary-grid">
+            <article class="summary-card">
+              <p class="summary-label">Upcoming Appointment</p>
+              <p class="summary-value" id="upcomingAppointment">None scheduled</p>
+            </article>
+            <article class="summary-card">
+              <p class="summary-label">Completed Consultations</p>
+              <p class="summary-value" id="completedConsultations">0</p>
+            </article>
+            <article class="summary-card">
+              <p class="summary-label">Membership Tier</p>
+              <p class="summary-value" id="membershipTier">Classic</p>
+            </article>
+            <article class="summary-card">
+              <p class="summary-label">Reward Points</p>
+              <p class="summary-value" id="rewardPoints">0</p>
+            </article>
+            <article class="summary-card">
+              <p class="summary-label">Unread Messages</p>
+              <p class="summary-value" id="unreadMessages">0</p>
+            </article>
+          </section>
+
+          <section class="dashboard-columns">
+            <article class="membership-card" id="membershipCard">
+              <div class="membership-card-inner">
+                <div class="membership-card-face membership-card-front">
+                  <span class="membership-badge" id="membershipBadge">Classic</span>
+                  <div class="membership-art"></div>
+                  <div class="membership-content">
+                    <p class="membership-title">Your membership</p>
+                    <h2 id="membershipLevel">Classic</h2>
+                    <p class="membership-subtitle" id="memberSince">Member Since 2026</p>
+                    <div class="membership-progress">
+                      <div class="membership-progress-bar"><div id="progressFill"></div></div>
+                      <p id="progressText">0 of 5 consultations completed</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="membership-card-face membership-card-back">
+                  <p class="membership-back-label">Benefits & details</p>
+                  <ul class="membership-benefits" id="membershipBenefits">
+                  </ul>
+                  <div class="membership-quicklinks">
+                    <span>Priority booking</span>
+                    <span>Exclusive offers</span>
+                    <span>Wellness rewards</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <div class="dashboard-side-panel">
+              <article class="widget-card">
+                <h3>Upcoming appointment</h3>
+                <div id="appointmentPanel"></div>
+              </article>
+              <article class="widget-card profile-card">
+                <h3>Profile summary</h3>
+                <div class="profile-meta">
+                  <div class="profile-avatar"></div>
+                  <div>
+                    <p id="profileName"></p>
+                    <span id="profileTier"></span>
+                  </div>
+                </div>
+                <div class="profile-details">
+                  <p><strong>Email</strong><br><span id="profileEmail"></span></p>
+                  <p><strong>Phone</strong><br><span id="profilePhone"></span></p>
+                  <p><strong>Member since</strong><br><span id="profileJoined"></span></p>
+                </div>
+                <a class="portal-btn ghost" href="/account.html#profile">Edit Profile</a>
+              </article>
+            </div>
+          </section>
+
+          <section class="section-panel" id="membership" data-header-theme="light">
+            <div class="section-header">
+              <div>
+                <p class="section-eyebrow">Membership Progress</p>
+                <h3>Your journey to the next level</h3>
+              </div>
+              <p id="membershipMotivation">Only 2 more completed consultations to unlock Premium Gold.</p>
+            </div>
+            <div class="progress-section">
+              <div class="progress-track">
+                <span>Classic</span>
+                <span>Premium Gold</span>
+              </div>
+              <div class="progress-timeline">
+                <div class="progress-step active"></div>
+                <div class="progress-step"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-panel" id="appointments" data-header-theme="light">
+            <div class="section-header">
+              <div>
+                <p class="section-eyebrow">Appointments</p>
+                <h3>Current & recent visits</h3>
+              </div>
+              <div class="section-actions">
+                <a class="portal-btn ghost" href="/#book">Book consultation</a>
+              </div>
+            </div>
+            <div id="appointmentHistory"></div>
+          </section>
+
+          <section class="section-panel" id="messages" data-header-theme="light">
+            <div class="section-header">
+              <div>
+                <p class="section-eyebrow">Conversation center</p>
+                <h3>Latest messages</h3>
+              </div>
+              <span class="badge" id="messageCount">0 unread</span>
+            </div>
+            <div id="messageInbox" class="inbox-grid"></div>
+          </section>
+
+          <div class="section-row">
+            <article class="widget-card" id="notificationsPanel" data-header-theme="light" aria-labelledby="notificationsPanelHeading">
+              <h3>Notifications</h3>
+              <div class="notification-list"></div>
+            </article>
+            <article class="widget-card" id="rewardsPanel">
+              <h3>Rewards</h3>
+              <div class="reward-summary"></div>
+            </article>
+          </div>
+
+          <section class="section-panel" id="rewards" data-header-theme="light">
+            <div class="section-header">
+              <div>
+                <p class="section-eyebrow">Promotions</p>
+                <h3>Curated offers</h3>
+              </div>
+            </div>
+            <div class="promotion-grid" id="promotionCards"></div>
+          </section>
+
+          <section class="section-panel" id="profile" data-header-theme="light">
+            <div class="section-header">
+              <div>
+                <p class="section-eyebrow">Quick actions</p>
+                <h3>Keep your experience premium</h3>
+              </div>
+            </div>
+            <div class="action-grid" id="quickActions"></div>
+          </section>
+        </section>
+      </div>
+    </main>
+
+    <script type="module">
+      import { requireAuth, logout, getUser, setUser } from './portal.js';
+
+      const logoutButtons = document.querySelectorAll('.logout-action');
+      logoutButtons.forEach((button) => {
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          logout();
+        });
+      });
+
+      document.querySelectorAll('.sidebar-nav a').forEach((link) => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          document.querySelectorAll('.sidebar-nav a').forEach((item) => item.classList.remove('active'));
+          link.classList.add('active');
+          document.querySelector(link.getAttribute('href')).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
+      const drawer = document.querySelector('.mobile-drawer');
+      const menuToggle = document.querySelector('.portal-menu-toggle');
+      const drawerClose = document.querySelector('.drawer-close');
+      const drawerLinks = document.querySelectorAll('.mobile-nav a');
+
+      const setDrawerOpen = (open) => {
+        drawer.classList.toggle('open', open);
+        document.body.classList.toggle('menu-open', open);
+        menuToggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
+        drawer?.setAttribute('aria-hidden', open ? 'false' : 'true');
+      };
+
+      menuToggle?.addEventListener('click', () => setDrawerOpen(true));
+      drawerClose?.addEventListener('click', () => setDrawerOpen(false));
+      drawerLinks.forEach((link) => {
+        link.addEventListener('click', () => setDrawerOpen(false));
+      });
+
+      const header = document.querySelector('.portal-header');
+      const themeSections = document.querySelectorAll('[data-header-theme]');
+      const headerObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const theme = entry.target.dataset.headerTheme || 'light';
+          header.classList.toggle('header-theme-dark', theme === 'dark');
+          header.classList.toggle('header-theme-light', theme !== 'dark');
+        });
+      }, { rootMargin: '-20% 0px -60% 0px', threshold: [0.35] });
+      themeSections.forEach((section) => headerObserver.observe(section));
+
+      const membershipMap = {
+        Classic: { next: 'Premium Gold', target: 5, benefits: ['Complimentary consultation', 'Priority appointment booking', 'Seasonal member offers'] },
+        'Premium Gold': { next: 'Platinum', target: 10, benefits: ['VIP booking window', 'Exclusive treatment previews', 'Luxury rewards access'] },
+        Platinum: { next: 'Elite Diamond', target: 20, benefits: ['Concierge support', 'Annual gift', 'Invitation-only events'] },
+        'Elite Diamond': { next: 'Elite Diamond', target: 20, benefits: ['Concierge support', 'Annual gift', 'Invitation-only events'] },
+      };
+
+      function formatDate(date) {
+        return date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+      }
+
+      function createCardMarkup(title, value, label) {
+        return `<div class="summary-card"><p class="summary-label">${title}</p><p class="summary-value">${value}</p><p class="summary-note">${label}</p></div>`;
+      }
+
+      function renderAppointmentCard(appointment) {
+        if (!appointment) {
+          return `
+            <div class="empty-state-card">
+              <p class="empty-title">No appointment scheduled</p>
+              <p class="empty-copy">Reserve your next consultation with a trusted VENSHA specialist and maintain your luxury care rhythm.</p>
+              <a class="portal-btn" href="/#book">Book a consultation</a>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="appointment-card">
+            <div>
+              <span class="eyebrow">Upcoming</span>
+              <h4>${appointment.treatment}</h4>
+              <p class="appointment-meta">${appointment.date} · ${appointment.time}</p>
+            </div>
+            <div class="appointment-body">
+              <p><strong>Therapist</strong><br>${appointment.therapist}</p>
+              <p><strong>Location</strong><br>${appointment.location}</p>
+              <p><strong>Status</strong><br>${appointment.status}</p>
+            </div>
+            <div class="appointment-actions">
+              <button class="portal-btn ghost">Reschedule</button>
+              <button class="portal-btn ghost">View details</button>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderHistoryCard(item) {
+        return `
+          <div class="history-card">
+            <div>
+              <p class="eyebrow">${item.type}</p>
+              <h4>${item.title}</h4>
+              <p class="history-meta">${item.date} · ${item.status}</p>
+            </div>
+            <div class="history-actions">
+              <button class="portal-btn ghost">Receipt</button>
+              <button class="portal-btn ghost">Book again</button>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderMessageCard(message) {
+        return `
+          <div class="message-card ${message.unread ? 'unread' : ''}">
+            <div>
+              <p class="eyebrow">${message.sender}</p>
+              <h4>${message.subject}</h4>
+            </div>
+            <div>
+              <p class="message-snippet">${message.snippet}</p>
+              <span class="badge">${message.status}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderNotification(notification) {
+        return `<div class="notification-item"><p>${notification.message}</p><span>${notification.time}</span></div>`;
+      }
+
+      function renderPromotionCard(promo) {
+        return `
+          <article class="promo-card">
+            <span class="promo-label">${promo.category}</span>
+            <h4>${promo.title}</h4>
+            <p>${promo.description}</p>
+            <a class="portal-btn ghost" href="#">${promo.cta}</a>
+          </article>
+        `;
+      }
+
+      function renderActionButton(action) {
+        return `<button class="action-pill">${action}</button>`;
+      }
+
+      function setText(selector, text) {
+        const el = document.querySelector(selector);
+        if (el) el.textContent = text;
+      }
+
+      async function initDashboard() {
+        const session = await requireAuth(['CLIENT', 'ADMIN']);
+        if (!session) return;
+
+        const user = session.user;
+        const membership = session.membership || { level: 'Classic', sessionsCompleted: 0, minConsultations: 5 };
+        const profileName = `${user.firstName} ${user.lastName}`;
+        const memberInfo = membershipMap[membership.level] || membershipMap.Classic;
+        const completed = membership.sessionsCompleted ?? 0;
+        const target = memberInfo.target;
+        const progress = Math.min(1, completed / target);
+        const remaining = target - completed;
+
+        setText('#sidebarName', profileName);
+        setText('#heroName', profileName);
+        setText('#todayDate', formatDate(new Date()));
+        setText('#completedConsultations', String(completed));
+        setText('#membershipTier', membership.level);
+        setText('#membershipBadge', membership.level);
+        setText('#membershipLevel', membership.level);
+        setText('#memberSince', `Member Since ${new Date(user.memberSince || Date.now()).toLocaleDateString()}`);
+        setText('#profileName', profileName);
+        setText('#profileTier', membership.level);
+        setText('#profileEmail', user.email);
+        setText('#profilePhone', user.phone || 'Not added');
+        setText('#profileJoined', new Date(user.memberSince || Date.now()).toLocaleDateString());
+        setText('#rewardPoints', '420');
+        const avatar = document.querySelector('.profile-avatar');
+        if (avatar) {
+          const initials = profileName
+            .split(' ')
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((word) => word[0])
+            .join('')
+            .toUpperCase();
+          avatar.textContent = initials || 'VS';
+        }
+        setText('#unreadMessages', '2');
+        setText('#messageCount', '2 unread');
+        setText('#membershipMotivation', remaining > 0 ? `Only ${remaining} more completed consultations to unlock ${memberInfo.next}.` : `You’ve reached ${membership.level}. Delightful.`);
+
+        document.querySelector('#progressFill').style.width = `${progress * 100}%`;
+        setText('#progressText', `${completed} of ${target} consultations completed`);
+
+        const benefitsList = memberInfo.benefits.map((benefit) => `<li>${benefit}</li>`).join('');
+        document.querySelector('#membershipBenefits').innerHTML = benefitsList;
+
+        document.querySelector('#upcomingAppointment').textContent = 'No upcoming appointment';
+        document.querySelector('#appointmentPanel').innerHTML = renderAppointmentCard(null);
+
+        const appointmentHistory = [
+          { type: 'Consultation', title: 'Renewal Treatment', date: 'May 12, 2026', status: 'Completed' },
+          { type: 'Consultation', title: 'Initial Skin Assessment', date: 'Mar 28, 2026', status: 'Completed' },
+        ];
+        document.querySelector('#appointmentHistory').innerHTML = appointmentHistory.map(renderHistoryCard).join('');
+
+        const messages = [
+          { sender: 'VENSHA Concierge', subject: 'Your next appointment awaits', snippet: 'We have an available luxury slot on Friday afternoon.', status: 'Reply needed', unread: true },
+          { sender: 'Support', subject: 'Membership reward unlocked', snippet: 'You’ve earned a complimentary upgrade on your next visit.', status: 'Viewed', unread: false },
+        ];
+        document.querySelector('#messageInbox').innerHTML = messages.map(renderMessageCard).join('');
+
+        const notifications = [
+          { message: 'A new seasonal offer is available for Premium Gold members.', time: 'Today' },
+          { message: 'Your profile was viewed by concierge services.', time: '2 days ago' },
+        ];
+        document.querySelector('.notification-list').innerHTML = notifications.map(renderNotification).join('');
+
+        document.querySelector('.reward-summary').innerHTML = `
+          <p class="reward-current">Current reward</p>
+          <h4>Complimentary recovery oil</h4>
+          <p class="reward-note">Redeem during your next consultation.</p>
+          <a class="portal-btn ghost" href="#">Claim reward</a>
+        `;
+
+        const promotions = [
+          { category: 'Seasonal Offer', title: 'Summer Skin Radiance', description: 'Receive a curated treatment with elevated care and premium results.', cta: 'View details' },
+          { category: 'Membership Perk', title: 'Referral Gift', description: 'Refer a friend and enjoy a luxury treatment credit.', cta: 'Share now' },
+          { category: 'Exclusive', title: 'Birthday Retreat', description: 'Book during your birthday month for an indulgent surprise.', cta: 'Reserve gift' },
+        ];
+        document.getElementById('promotionCards').innerHTML = promotions.map(renderPromotionCard).join('');
+
+        const actions = ['Book Consultation', 'Contact Clinic', 'View Rewards', 'Update Profile', 'Browse Treatments'];
+        document.getElementById('quickActions').innerHTML = actions.map(renderActionButton).join('');
+      }
+
+      await initDashboard();
+    </script>
+  </body>
+</html>
