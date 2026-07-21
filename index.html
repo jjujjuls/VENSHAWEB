@@ -3,131 +3,332 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VENSHA SKIN | Contour Pro Max</title>
+    <title>VENSHASKIN | Megashape Pro</title>
     <meta
       name="description"
-      content="Discover Contour Pro Max at VENSHA SKIN, a premium aesthetic treatment experience designed to educate and guide clients toward trusted consultations."
+      content="Megashape Pro at VENSHASKIN — premium multi-technology body contouring with consultation-led care."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="hero">
+    <header class="site-header">
       <nav class="nav container">
-        <a class="brand" href="#">VENSHA<span>SKIN</span></a>
-        <button class="menu-toggle" aria-label="Toggle menu">☰</button>
-        <div class="nav-links">
-          <a href="#about">About</a>
-          <a href="#treatment">Contour Pro Max</a>
-          <a href="#benefits">Benefits</a>
-          <a href="#research">Scientific Research</a>
-          <a href="#faq">FAQ</a>
-          <a href="#book">Book Consultation</a>
-          <a href="#contact">Contact</a>
+        <div class="nav-side nav-left">
+          <a href="#treatment">Treatment</a>
+          <a href="#technologies">Technologies</a>
         </div>
-        <a class="btn btn-small btn-primary nav-cta" href="#book">Book Consultation</a>
+        <a class="brand" href="#">VENSHA<span>SKIN</span></a>
+        <div class="nav-side nav-right">
+          <a href="#results">Results</a>
+          <a class="nav-book" href="#book">Book</a>
+        </div>
+        <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span>
+        </button>
       </nav>
+
+      <div class="mobile-menu" id="mobileMenu" hidden>
+        <a href="#treatment">Treatment</a>
+        <a href="#technologies">Technologies</a>
+        <a href="#results">Results</a>
+        <a href="#specs">Specifications</a>
+        <a href="#faq">FAQ</a>
+        <a href="#book">Book Consultation</a>
+      </div>
 
       <div class="container hero-grid">
         <div class="hero-copy reveal">
-          <p class="eyebrow">Luxury aesthetics • evidence-informed care • consultation-led</p>
-          <h1>Elevated care, refined results.</h1>
+          <p class="eyebrow">Megashape Pro&reg;</p>
+          <h1>Beautiful figure.<br />Timeless elegance.</h1>
           <p class="lead">
-            Discover a premium contouring experience where education, trust, and calm confidence come first.
+            Your curves—eternalized by Megashape Pro. A revolutionary cellulite treatment that is safe, effective, and requires no downtime.
           </p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="#book">Book a consultation</a>
-            <a class="btn btn-secondary" href="#treatment">Explore Contour Pro Max</a>
+            <a class="btn btn-ghost" href="#technologies">Explore technologies</a>
           </div>
-          <ul class="trust-list">
-            <li>Private consultations</li>
-            <li>Luxury experience</li>
-            <li>Clinical clarity</li>
-          </ul>
+          <p class="hero-tagline">Pursue beauty &middot; Pursue health</p>
         </div>
-
-        <div class="hero-visual reveal" aria-label="Luxury treatment environment">
-          <div class="hero-image"></div>
-          <div class="hero-floating-card">
-            <p class="eyebrow">Consultation-led</p>
-            <h3>Personalized guidance from the very first visit.</h3>
-          </div>
+        <div class="hero-visual reveal">
+          <img
+            src="assets/images/megashape-hero.jpg"
+            alt="Megashape Pro device with model"
+            class="hero-image"
+          />
         </div>
       </div>
     </header>
 
     <main>
-      <section id="about" class="section section-intro container reveal">
-        <div class="section-heading">
-          <p class="eyebrow">About VENSHA SKIN</p>
-          <h2>A refined approach to medical aesthetics, shaped by trust and expertise.</h2>
-        </div>
-        <div class="split-layout">
-          <div class="panel">
-            <p>
-              VENSHA SKIN brings together premium care, thoughtful education, and calm professionalism. Every visit is designed to feel considered, elegant, and reassuring.
-            </p>
-            <p>
-              Our philosophy is simple: guide clients with clarity, establish realistic expectations, and create a seamless pathway toward informed treatment decisions.
-            </p>
-          </div>
-          <div class="image-panel"></div>
+      <section id="about" class="section container reveal">
+        <div class="section-heading centered">
+          <p class="eyebrow">About VENSHASKIN</p>
+          <h2>A refined approach to medical aesthetics</h2>
+          <p class="section-desc">
+            Premium care, thoughtful education, and calm professionalism—guiding clients with clarity toward informed treatment decisions.
+          </p>
         </div>
       </section>
 
-      <section id="treatment" class="section container reveal">
-        <div class="section-heading">
-          <p class="eyebrow">Contour Pro Max</p>
-          <h2>An advanced treatment experience designed to support sculpting goals with professional guidance.</h2>
-        </div>
-        <div class="two-column">
-          <div class="panel">
-            <h3>How it works</h3>
-            <p>
-              Contour Pro Max combines modern aesthetic technologies within a consultation-led framework, helping clients understand how the treatment may support their goals in a professional and measured way.
-            </p>
-          </div>
-          <div class="panel">
-            <h3>What technologies are involved?</h3>
-            <p>
-              The treatment may incorporate radiofrequency, tissue stimulation, and supporting technologies delivered in a controlled clinical setting. Suitability and expectations are assessed during consultation.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section id="research" class="section section-alt reveal">
+      <section id="treatment" class="section section-band reveal">
         <div class="container">
-          <div class="section-heading">
-            <p class="eyebrow">Scientific research</p>
-            <h2>Evidence-led education, transparent communication, and realistic expectation setting.</h2>
-          </div>
-          <div class="cards three-up">
-            <article class="card">
-              <h3>Clinical credibility</h3>
-              <p>We prioritize scientifically supported information and clear explanations so clients can make informed decisions.</p>
+          <div class="band-label"><span class="chevron">&raquo;</span> Applicators</div>
+          <p class="band-intro">
+            Megashape Pro integrates five core technologies to achieve fat reduction, body shaping, and skin rejuvenation through synergy.
+          </p>
+          <div class="applicators-grid">
+            <article class="applicator-card">
+              <img src="assets/images/vacuum-roller.png" alt="Vacuum Roller applicator" />
+              <h3>Vacuum Roller</h3>
+              <p>Negative pressure with double-helix roller for tissue mobilization and RF energy transmission.</p>
             </article>
-            <article class="card">
-              <h3>Professional safety</h3>
-              <p>Suitability and aftercare guidance are handled with care to ensure a safe and reassuring experience.</p>
+            <article class="applicator-card">
+              <img src="assets/images/multipolar-rf.png" alt="Multi-Polar RF applicator" />
+              <h3>Multi-Polar RF</h3>
+              <p>Heats deep epidermal layers to stimulate collagen synthesis and improve skin texture.</p>
             </article>
-            <article class="card">
-              <h3>Honest expectations</h3>
-              <p>We help patients understand potential benefits, limitations, and the role of follow-up care in achieving their goals.</p>
+            <article class="applicator-card">
+              <img src="assets/images/bipolar-rf.png" alt="Bi-Polar RF applicator" />
+              <h3>Bi-Polar RF</h3>
+              <p>Targeted radio frequency lifting for precise wrinkle improvement and skin tightening.</p>
+            </article>
+            <article class="applicator-card">
+              <img src="assets/images/cavitation-head.png" alt="Cavitation applicator" />
+              <h3>Cavitation</h3>
+              <p>40kHz low-frequency ultrasound to support fat cell disruption and body contouring.</p>
             </article>
           </div>
         </div>
       </section>
 
-      <section id="benefits" class="section container reveal">
+      <section id="technologies" class="section container reveal">
         <div class="section-heading">
-          <p class="eyebrow">Benefits & expectations</p>
-          <h2>A premium experience that is both informative and reassuring.</h2>
+          <p class="eyebrow">How it works</p>
+          <h2>Full-dimensional effect through technology synergy</h2>
+        </div>
+        <div class="tech-interactive">
+          <div class="tech-tabs" role="tablist">
+            <button class="tech-tab active" role="tab" aria-selected="true" data-tech="vacuum">
+              Vacuum &amp; Roller
+            </button>
+            <button class="tech-tab" role="tab" aria-selected="false" data-tech="rf">
+              Radio Frequency
+            </button>
+            <button class="tech-tab" role="tab" aria-selected="false" data-tech="cavitation">
+              Cavitation
+            </button>
+            <button class="tech-tab" role="tab" aria-selected="false" data-tech="infrared">
+              940nm Infrared
+            </button>
+            <button class="tech-tab" role="tab" aria-selected="false" data-tech="synergy">
+              Full Synergy
+            </button>
+          </div>
+          <div class="tech-panel">
+            <div class="tech-content">
+              <h3 id="techTitle">Negative pressure &amp; roller</h3>
+              <p id="techDesc">
+                Combines vacuum negative pressure with a double-helix electric roller (15 rpm). Enhances the kneading effect of subcutaneous fat and promotes deeper transmission of radio frequency energy.
+              </p>
+            </div>
+            <div class="tech-visual">
+              <img id="techImage" src="assets/images/vacuum-roller.png" alt="Vacuum roller technology" />
+            </div>
+          </div>
+        </div>
+        <p class="tech-summary muted">
+          Through synergy of multiple technologies, Megashape Pro achieves deep fat reduction, superficial metabolism, skin tightening, and circulation optimization—improving body shaping, anti-aging, and cellulite appearance.
+        </p>
+      </section>
+
+      <section id="features" class="section section-alt reveal">
+        <div class="container">
+          <div class="features-header">
+            <span class="band-label-inline">Core Technology</span>
+            <span class="features-divider">&lsaquo;&lsaquo;&lsaquo; &rsaquo;&rsaquo;&rsaquo;</span>
+            <span class="band-label-inline">Specification</span>
+          </div>
+          <div class="features-grid">
+            <div class="features-visual">
+              <img src="assets/images/machine-full.png" alt="Megashape Pro machine" />
+              <ul class="feature-callouts">
+                <li>
+                  <strong>Android Smart Screen</strong>
+                  Remote control, unlimited storage data.
+                </li>
+                <li>
+                  <strong>Advanced 5-in-1 Technology</strong>
+                  Mechanical roller, infrared light, cavitation, vacuum, and RF.
+                </li>
+                <li>
+                  <strong>Temperature Alarm System</strong>
+                  43&deg; alarming for safe treatment.
+                </li>
+                <li>
+                  <strong>Ergonomic Design</strong>
+                  Foldable screen adjusts to different angles; minimizes fatigue.
+                </li>
+              </ul>
+            </div>
+            <div id="specs" class="specs-panel">
+              <table class="specs-table">
+                <thead>
+                  <tr>
+                    <th colspan="2">Technical Specifications</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Handle</td><td>Vacuum Roller / Multi-Polar RF / Bi-Polar RF / Cavitation</td></tr>
+                  <tr><td>Screen Size</td><td>13.3" Android</td></tr>
+                  <tr><td>RF</td><td>1MHz</td></tr>
+                  <tr><td>Cavitation</td><td>40kHz</td></tr>
+                  <tr><td>Vacuum</td><td>80 KPa</td></tr>
+                  <tr><td>940nm LED</td><td>12W</td></tr>
+                  <tr><td>Voltage</td><td>110V / 220V</td></tr>
+                  <tr><td>Machine Size</td><td>645 &times; 360 &times; 1100mm</td></tr>
+                  <tr><td>Packing Size</td><td>1200 &times; 540 &times; 1140mm</td></tr>
+                  <tr><td>Machine Power</td><td>800W</td></tr>
+                </tbody>
+              </table>
+              <img
+                src="assets/images/applicator-closeup.png"
+                alt="Applicator in use"
+                class="specs-photo"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="results" class="section container reveal">
+        <div class="results-header">
+          <span class="band-label-inline light">&raquo; Proven Significant Result</span>
+        </div>
+        <div class="section-heading">
+          <p class="eyebrow">Clinical outcomes</p>
+          <h2>Postpartum treatment for women</h2>
+        </div>
+
+        <div class="results-grid">
+          <div class="results-chart-panel panel">
+            <h3>Outcome distribution</h3>
+            <div class="chart-wrap">
+              <svg class="donut-chart" viewBox="0 0 200 200" aria-label="Outcome distribution chart">
+                <circle class="donut-ring" cx="100" cy="100" r="70" />
+                <circle class="donut-segment" data-segment="68" cx="100" cy="100" r="70"
+                  stroke="#b8cdd9" stroke-dasharray="0 440" />
+                <circle class="donut-segment" data-segment="29" cx="100" cy="100" r="70"
+                  stroke="#c4b8d9" stroke-dasharray="0 440" />
+                <circle class="donut-segment" data-segment="3" cx="100" cy="100" r="70"
+                  stroke="#d9d4b8" stroke-dasharray="0 440" />
+                <text class="donut-center" x="100" y="96" text-anchor="middle">68%</text>
+                <text class="donut-center-sub" x="100" y="114" text-anchor="middle">primary</text>
+              </svg>
+            </div>
+            <ul class="chart-legend" id="chartLegend">
+              <li data-segment="68" class="active">
+                <span class="legend-dot" style="background:#b8cdd9"></span>
+                <span>68% of users: 10%+ result</span>
+              </li>
+              <li data-segment="29">
+                <span class="legend-dot" style="background:#c4b8d9"></span>
+                <span>29% of users: 5&ndash;10% result</span>
+              </li>
+              <li data-segment="3">
+                <span class="legend-dot" style="background:#d9d4b8"></span>
+                <span>3% of users: result less than 5%</span>
+              </li>
+            </ul>
+            <div class="stat-cards">
+              <div class="stat-card">
+                <span class="stat-value">97%</span>
+                <span class="stat-label">patients reported satisfaction</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value">82%</span>
+                <span class="stat-label">maintained effect after 3 months</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-center panel">
+            <h3>Megashape Pro&reg;</h3>
+            <p class="muted">Five core technologies working in synergy for fat reduction, body shaping, and skin rejuvenation.</p>
+            <div class="benefit-icons">
+              <div class="benefit-icon">
+                <span class="icon-circle">+</span>
+                <span>Cellulite Removal</span>
+              </div>
+              <div class="benefit-icon">
+                <span class="icon-circle">&infin;</span>
+                <span>Body Contouring</span>
+              </div>
+              <div class="benefit-icon">
+                <span class="icon-circle">&uarr;</span>
+                <span>Skin Tightening</span>
+              </div>
+              <div class="benefit-icon">
+                <span class="icon-circle">&minus;</span>
+                <span>Circumference Reduction</span>
+              </div>
+            </div>
+            <ul class="milestone-list">
+              <li><strong>89%</strong> skin texture improvement &mdash; 1 treatment</li>
+              <li><strong>3&ndash;5cm</strong> circumference &mdash; 2&ndash;3 treatments</li>
+              <li><strong>85%</strong> cellulite reduction &mdash; 4 treatments</li>
+            </ul>
+            <img src="assets/images/before&After.png" alt="Before and after results" class="before-after" />
+          </div>
+
+          <div class="results-bodymap panel">
+            <h3>Targeted results</h3>
+            <p class="muted">Hover markers to explore reported improvements</p>
+            <div class="bodymap-wrap">
+              <svg class="bodymap-svg" viewBox="0 0 200 420" aria-hidden="true">
+                <ellipse cx="100" cy="42" rx="28" ry="34" fill="#e8e4e0"/>
+                <path d="M72 76 Q68 120 74 160 L62 200 Q58 240 64 280 L58 380 Q56 400 68 410 L132 410 Q144 400 142 380 L136 280 Q142 240 138 200 L126 160 Q132 120 128 76 Z" fill="#ddd8d3"/>
+                <path d="M62 200 Q40 210 32 260 L28 300 Q26 310 34 312 L48 308 Q52 260 64 240 Z" fill="#ddd8d3"/>
+                <path d="M138 200 Q160 210 168 260 L172 300 Q174 310 166 312 L152 308 Q148 260 136 240 Z" fill="#ddd8d3"/>
+              </svg>
+              <button class="hotspot" data-hotspot="firm" style="top:14%;left:50%"
+                aria-label="+82% Firm Skin">
+                <span class="hotspot-dot"></span>
+                <span class="hotspot-label">+82% Firm Skin</span>
+              </button>
+              <button class="hotspot" data-hotspot="waist" style="top:38%;left:44%"
+                aria-label="-3cm Circumference">
+                <span class="hotspot-dot"></span>
+                <span class="hotspot-label">&minus;3cm Circumference</span>
+              </button>
+              <button class="hotspot" data-hotspot="hip" style="top:48%;left:56%"
+                aria-label="-3cm Circumference">
+                <span class="hotspot-dot"></span>
+                <span class="hotspot-label">&minus;3cm Circumference</span>
+              </button>
+              <button class="hotspot" data-hotspot="cellulite" style="top:62%;left:52%"
+                aria-label="-85% Cellulite">
+                <span class="hotspot-dot"></span>
+                <span class="hotspot-label">&minus;85% Cellulite</span>
+              </button>
+            </div>
+            <div class="hotspot-detail" id="hotspotDetail">
+              <span class="hotspot-detail-value">+82%</span>
+              <span class="hotspot-detail-label">Firm Skin</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="benefits" class="section section-alt container reveal">
+        <div class="section-heading centered">
+          <p class="eyebrow">Benefits &amp; expectations</p>
+          <h2>A premium, informative experience</h2>
         </div>
         <div class="two-column">
           <div class="panel">
@@ -139,38 +340,24 @@
               <li>Professional guidance and aftercare support</li>
             </ul>
           </div>
-          <div class="panel highlight">
+          <div class="panel panel-accent">
             <h3>Realistic expectations</h3>
-            <p>
+            <p class="muted">
               Individual outcomes vary and depend on suitability, goals, and follow-up care. A consultation helps determine whether the treatment is right for you.
             </p>
           </div>
         </div>
       </section>
 
-      <section class="section section-alt reveal">
-        <div class="container testimonial-band">
-          <div class="quote-card">
-            <p class="eyebrow">Client perspective</p>
-            <blockquote>“The experience felt calm, informed, and genuinely personal. It helped me feel confident about taking the next step.”</blockquote>
-            <p class="quote-author">— A recent consultation client</p>
-          </div>
-          <div class="gallery-strip">
-            <div class="gallery-card one"></div>
-            <div class="gallery-card two"></div>
-          </div>
-        </div>
-      </section>
-
       <section id="faq" class="section container reveal">
-        <div class="section-heading">
-          <p class="eyebrow">Frequently asked questions</p>
-          <h2>Everything you need to know before booking your consultation.</h2>
+        <div class="section-heading centered">
+          <p class="eyebrow">FAQ</p>
+          <h2>Before your consultation</h2>
         </div>
         <div class="faq-list">
           <details open>
-            <summary>What is Contour Pro Max?</summary>
-            <p>A premium aesthetic treatment experience designed to support contouring goals through professional assessment and personalized care.</p>
+            <summary>What is Megashape Pro?</summary>
+            <p>A multi-technology body contouring system combining vacuum roller, cavitation, RF, and infrared light for sculpting and skin improvement.</p>
           </details>
           <details>
             <summary>Is it suitable for everyone?</summary>
@@ -178,18 +365,18 @@
           </details>
           <details>
             <summary>What should I expect from treatment?</summary>
-            <p>Expect a guided, professional experience with clear communication, realistic outcomes, and aftercare support.</p>
+            <p>A guided, professional experience with clear communication, realistic outcomes, and aftercare support. No downtime required.</p>
           </details>
         </div>
       </section>
 
-      <section id="book" class="section section-alt reveal">
+      <section id="book" class="section section-band reveal">
         <div class="container booking-grid">
           <div>
-            <p class="eyebrow">Consultation booking</p>
-            <h2>Request your consultation in a premium, effortless experience.</h2>
-            <p class="lead small">
-              Share your details and we will follow up to confirm your consultation request and next steps.
+            <p class="eyebrow light">Consultation</p>
+            <h2>Request your consultation</h2>
+            <p class="section-desc light">
+              Share your details and we will follow up to confirm your consultation request.
             </p>
           </div>
           <form id="bookingForm" class="booking-form">
@@ -229,13 +416,13 @@
               </label>
               <label class="full">
                 Message / Concerns
-                <textarea name="message" rows="4"></textarea>
+                <textarea name="message" rows="3"></textarea>
               </label>
               <label class="checkbox full">
                 <input type="checkbox" name="consent" required />
                 I consent to the privacy policy and agree to be contacted regarding my consultation request.
               </label>
-              <button class="btn btn-primary full" type="submit">Submit booking request</button>
+              <button class="btn btn-primary full" type="submit">Submit request</button>
             </div>
             <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
           </form>
@@ -243,22 +430,18 @@
       </section>
 
       <section id="contact" class="section container reveal">
-        <div class="section-heading">
-          <p class="eyebrow">Contact us</p>
-          <h2>Luxury support, clear communication, and an easy path to your consultation.</h2>
-        </div>
         <div class="contact-grid">
           <div class="panel">
             <h3>Visit the clinic</h3>
-            <p>123 Aesthetic Avenue<br />Suite 400, Downtown<br />Open Mon–Sat</p>
-            <p><strong>Phone:</strong> +1 (555) 014-7788</p>
-            <p><strong>Email:</strong> hello@venshaskin.com</p>
+            <p class="muted">123 Aesthetic Avenue<br />Suite 400, Downtown<br />Open Mon&ndash;Sat</p>
+            <p class="muted"><strong>Phone:</strong> +1 (555) 014-7788</p>
+            <p class="muted"><strong>Email:</strong> hello@venshaskin.com</p>
           </div>
           <div class="panel">
-            <h3>Follow and connect</h3>
+            <h3>Connect</h3>
             <ul class="check-list">
               <li>Instagram: @venshaskin</li>
-              <li>Facebook: VENSHA SKIN</li>
+              <li>Facebook: VENSHASKIN</li>
               <li>WhatsApp: Available on request</li>
             </ul>
           </div>
@@ -269,8 +452,8 @@
     <footer class="footer">
       <div class="container footer-content">
         <div>
-          <h2>Begin your consultation journey.</h2>
-          <p>Let VENSHA SKIN guide you toward a confident, informed next step.</p>
+          <p class="eyebrow">VENSHASKIN</p>
+          <p class="muted">Pursue beauty &middot; Pursue health</p>
         </div>
         <a class="btn btn-primary" href="#book">Request consultation</a>
       </div>
