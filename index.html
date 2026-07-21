@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="site-header">
+    <div class="nav-shell" id="navShell" data-theme="light">
       <nav class="nav container">
         <div class="nav-side nav-left">
           <a href="#treatment">Treatment</a>
@@ -41,7 +41,9 @@
         <a href="#faq">FAQ</a>
         <a href="#book">Book Consultation</a>
       </div>
+    </div>
 
+    <header class="site-header" data-nav-theme="light">
       <div class="container hero-grid">
         <div class="hero-copy reveal">
           <p class="eyebrow">Megashape Pro&reg;</p>
@@ -57,7 +59,7 @@
         </div>
         <div class="hero-visual reveal">
           <img
-            src="assets/images/megashape-hero.jpg"
+            src="assets/images/Megashape-hero-removebg-preview.png"
             alt="Megashape Pro device with model"
             class="hero-image"
           />
@@ -66,7 +68,7 @@
     </header>
 
     <main>
-      <section id="about" class="section container reveal">
+      <section id="about" class="section container reveal" data-nav-theme="light">
         <div class="section-heading centered">
           <p class="eyebrow">About VENSHASKIN</p>
           <h2>A refined approach to medical aesthetics</h2>
@@ -76,7 +78,7 @@
         </div>
       </section>
 
-      <section id="treatment" class="section section-band reveal">
+      <section id="treatment" class="section section-band reveal" data-nav-theme="gold">
         <div class="container">
           <div class="band-label"><span class="chevron">&raquo;</span> Applicators</div>
           <p class="band-intro">
@@ -84,22 +86,22 @@
           </p>
           <div class="applicators-grid">
             <article class="applicator-card">
-              <img src="assets/images/vacuum-roller.png" alt="Vacuum Roller applicator" />
+              <img src="assets/images/vacuumRoller-removebg-preview.png" alt="Vacuum Roller applicator" />
               <h3>Vacuum Roller</h3>
               <p>Negative pressure with double-helix roller for tissue mobilization and RF energy transmission.</p>
             </article>
             <article class="applicator-card">
-              <img src="assets/images/multipolar-rf.png" alt="Multi-Polar RF applicator" />
+              <img src="assets/images/multiPolarRF-removebg-preview.png" alt="Multi-Polar RF applicator" />
               <h3>Multi-Polar RF</h3>
               <p>Heats deep epidermal layers to stimulate collagen synthesis and improve skin texture.</p>
             </article>
             <article class="applicator-card">
-              <img src="assets/images/bipolar-rf.png" alt="Bi-Polar RF applicator" />
+              <img src="assets/images/bipolarRF-removebg-preview.png" alt="Bi-Polar RF applicator" />
               <h3>Bi-Polar RF</h3>
               <p>Targeted radio frequency lifting for precise wrinkle improvement and skin tightening.</p>
             </article>
             <article class="applicator-card">
-              <img src="assets/images/cavitation-head.png" alt="Cavitation applicator" />
+              <img src="assets/images/cavitation-removebg-preview.png" alt="Cavitation applicator" />
               <h3>Cavitation</h3>
               <p>40kHz low-frequency ultrasound to support fat cell disruption and body contouring.</p>
             </article>
@@ -107,7 +109,7 @@
         </div>
       </section>
 
-      <section id="technologies" class="section container reveal">
+      <section id="technologies" class="section container reveal" data-nav-theme="light">
         <div class="section-heading">
           <p class="eyebrow">How it works</p>
           <h2>Full-dimensional effect through technology synergy</h2>
@@ -138,7 +140,7 @@
               </p>
             </div>
             <div class="tech-visual">
-              <img id="techImage" src="assets/images/vacuum-roller.png" alt="Vacuum roller technology" />
+              <img id="techImage" src="assets/images/vacuumRoller-removebg-preview.png" alt="Vacuum roller technology" />
             </div>
           </div>
         </div>
@@ -147,7 +149,7 @@
         </p>
       </section>
 
-      <section id="features" class="section section-alt reveal">
+      <section id="features" class="section section-alt reveal" data-nav-theme="soft">
         <div class="container">
           <div class="features-header">
             <span class="band-label-inline">Core Technology</span>
@@ -206,7 +208,7 @@
         </div>
       </section>
 
-      <section id="results" class="section container reveal">
+      <section id="results" class="section container reveal" data-nav-theme="light">
         <div class="results-header">
           <span class="band-label-inline light">&raquo; Proven Significant Result</span>
         </div>
@@ -290,28 +292,69 @@
             <h3>Targeted results</h3>
             <p class="muted">Hover markers to explore reported improvements</p>
             <div class="bodymap-wrap">
-              <svg class="bodymap-svg" viewBox="0 0 200 420" aria-hidden="true">
-                <ellipse cx="100" cy="42" rx="28" ry="34" fill="#e8e4e0"/>
-                <path d="M72 76 Q68 120 74 160 L62 200 Q58 240 64 280 L58 380 Q56 400 68 410 L132 410 Q144 400 142 380 L136 280 Q142 240 138 200 L126 160 Q132 120 128 76 Z" fill="#ddd8d3"/>
-                <path d="M62 200 Q40 210 32 260 L28 300 Q26 310 34 312 L48 308 Q52 260 64 240 Z" fill="#ddd8d3"/>
-                <path d="M138 200 Q160 210 168 260 L172 300 Q174 310 166 312 L152 308 Q148 260 136 240 Z" fill="#ddd8d3"/>
+              <svg class="bodymap-svg" viewBox="0 0 200 450" aria-hidden="true">
+                <circle cx="100" cy="38" r="22" fill="#E6E0DA"/>
+                <path
+                  d="
+                    M82 62
+                    C72 72,68 88,70 108
+                    C72 126,76 146,78 164
+                    C80 180,74 202,70 224
+                    C66 246,68 268,72 294
+                    L78 390
+                    C79 410,88 430,96 440
+                    L104 440
+                    C112 430,121 410,122 390
+                    L128 294
+                    C132 268,134 246,130 224
+                    C126 202,120 180,122 164
+                    C124 146,128 126,130 108
+                    C132 88,128 72,118 62
+                    C112 68,106 72,100 72
+                    C94 72,88 68,82 62
+                    Z"
+                  fill="#DDD7D1"
+                />
+                <path
+                  d="
+                    M70 112
+                    C48 138,42 176,46 214
+                    C48 236,54 258,60 282
+                    C62 290,70 290,72 282
+                    C68 252,68 224,72 196
+                    C74 168,74 140,70 112
+                    Z"
+                  fill="#DDD7D1"
+                />
+                <path
+                  d="
+                    M130 112
+                    C152 138,158 176,154 214
+                    C152 236,146 258,140 282
+                    C138 290,130 290,128 282
+                    C132 252,132 224,128 196
+                    C126 168,126 140,130 112
+                    Z"
+                  fill="#DDD7D1"
+                />
+                <rect x="97" y="275" width="6" height="165" fill="#fff"/>
               </svg>
-              <button class="hotspot" data-hotspot="firm" style="top:14%;left:50%"
+              <button class="hotspot" data-hotspot="firm" style="top:16%;left:58%"
                 aria-label="+82% Firm Skin">
                 <span class="hotspot-dot"></span>
                 <span class="hotspot-label">+82% Firm Skin</span>
               </button>
-              <button class="hotspot" data-hotspot="waist" style="top:38%;left:44%"
+              <button class="hotspot" data-hotspot="waist" style="top:36%;left:50%"
                 aria-label="-3cm Circumference">
                 <span class="hotspot-dot"></span>
                 <span class="hotspot-label">&minus;3cm Circumference</span>
               </button>
-              <button class="hotspot" data-hotspot="hip" style="top:48%;left:56%"
+              <button class="hotspot" data-hotspot="hip" style="top:50%;left:56%"
                 aria-label="-3cm Circumference">
                 <span class="hotspot-dot"></span>
                 <span class="hotspot-label">&minus;3cm Circumference</span>
               </button>
-              <button class="hotspot" data-hotspot="cellulite" style="top:62%;left:52%"
+              <button class="hotspot" data-hotspot="cellulite" style="top:68%;left:52%"
                 aria-label="-85% Cellulite">
                 <span class="hotspot-dot"></span>
                 <span class="hotspot-label">&minus;85% Cellulite</span>
@@ -325,7 +368,7 @@
         </div>
       </section>
 
-      <section id="benefits" class="section section-alt container reveal">
+      <section id="benefits" class="section section-alt container reveal" data-nav-theme="soft">
         <div class="section-heading centered">
           <p class="eyebrow">Benefits &amp; expectations</p>
           <h2>A premium, informative experience</h2>
@@ -349,7 +392,7 @@
         </div>
       </section>
 
-      <section id="faq" class="section container reveal">
+      <section id="faq" class="section container reveal" data-nav-theme="light">
         <div class="section-heading centered">
           <p class="eyebrow">FAQ</p>
           <h2>Before your consultation</h2>
@@ -370,7 +413,7 @@
         </div>
       </section>
 
-      <section id="book" class="section section-band reveal">
+      <section id="book" class="section section-band reveal" data-nav-theme="gold">
         <div class="container booking-grid">
           <div>
             <p class="eyebrow light">Consultation</p>
@@ -379,23 +422,33 @@
               Share your details and we will follow up to confirm your consultation request.
             </p>
           </div>
-          <form id="bookingForm" class="booking-form">
+          <form
+            id="bookingForm"
+            class="booking-form"
+            action="https://formsubmit.co/venshaskin@gmail.com"
+            method="POST"
+          >
+            <input type="hidden" name="_subject" value="New Consultation Request — VENSHASKIN" />
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
             <div class="form-grid">
               <label>
                 Full Name
-                <input type="text" name="name" required />
+                <input type="text" name="name" placeholder="Enter full name" required />
               </label>
               <label>
                 Mobile Number
-                <input type="tel" name="phone" required />
+                <input type="tel" name="phone" placeholder="09921209631" required />
               </label>
               <label>
                 Email Address
-                <input type="email" name="email" required />
+                <input type="email" name="email" placeholder="your@email.com" required />
               </label>
               <label>
                 Preferred Treatment Area
-                <select name="area">
+                <select name="area" required>
+                  <option value="" disabled selected>Select treatment area</option>
                   <option>Face</option>
                   <option>Body</option>
                   <option>Contour Focus</option>
@@ -404,11 +457,12 @@
               </label>
               <label>
                 Preferred Date
-                <input type="date" name="date" />
+                <input type="date" name="date" placeholder="dd/mm/yyyy" />
               </label>
               <label>
                 Preferred Time
-                <select name="time">
+                <select name="time" required>
+                  <option value="" disabled selected>Select time</option>
                   <option>Morning</option>
                   <option>Afternoon</option>
                   <option>Evening</option>
@@ -416,7 +470,7 @@
               </label>
               <label class="full">
                 Message / Concerns
-                <textarea name="message" rows="3"></textarea>
+                <textarea name="message" rows="3" placeholder="Share your concerns or questions"></textarea>
               </label>
               <label class="checkbox full">
                 <input type="checkbox" name="consent" required />
@@ -429,27 +483,27 @@
         </div>
       </section>
 
-      <section id="contact" class="section container reveal">
+      <section id="contact" class="section container reveal" data-nav-theme="light">
         <div class="contact-grid">
           <div class="panel">
             <h3>Visit the clinic</h3>
-            <p class="muted">123 Aesthetic Avenue<br />Suite 400, Downtown<br />Open Mon&ndash;Sat</p>
-            <p class="muted"><strong>Phone:</strong> +1 (555) 014-7788</p>
-            <p class="muted"><strong>Email:</strong> hello@venshaskin.com</p>
+            <p class="muted">Alabang-Zapote Road, Pamplona Tres<br />Las Pi&ntilde;as, 1747 Metro Manila<br />Open Mon&ndash;Sat</p>
+            <p class="muted"><strong>Phone:</strong> 09921209631</p>
+            <p class="muted"><strong>Email:</strong> venshaskin@gmail.com</p>
           </div>
           <div class="panel">
             <h3>Connect</h3>
             <ul class="check-list">
               <li>Instagram: @venshaskin</li>
               <li>Facebook: VENSHASKIN</li>
-              <li>WhatsApp: Available on request</li>
+              <li>WhatsApp: 09921209631</li>
             </ul>
           </div>
         </div>
       </section>
     </main>
 
-    <footer class="footer">
+    <footer class="footer" data-nav-theme="light">
       <div class="container footer-content">
         <div>
           <p class="eyebrow">VENSHASKIN</p>

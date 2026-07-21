@@ -1,8 +1,33 @@
 const toggle = document.querySelector('.menu-toggle');
 const mobileMenu = document.getElementById('mobileMenu');
+const navShell = document.getElementById('navShell');
 const form = document.getElementById('bookingForm');
 const formMessage = document.getElementById('formMessage');
 const reveals = document.querySelectorAll('.reveal');
+
+/* ── Sticky nav theme adapts to scroll position ── */
+function updateNavTheme() {
+  if (!navShell) return;
+
+  const probeY = window.scrollY + navShell.offsetHeight + 2;
+  const sections = document.querySelectorAll('[data-nav-theme]');
+  let theme = 'light';
+
+  sections.forEach((section) => {
+    const top = section.offsetTop;
+    const bottom = top + section.offsetHeight;
+    if (probeY >= top && probeY < bottom) {
+      theme = section.dataset.navTheme;
+    }
+  });
+
+  navShell.dataset.theme = theme;
+}
+
+updateNavTheme();
+window.addEventListener('scroll', updateNavTheme, { passive: true });
+window.addEventListener('resize', updateNavTheme);
+window.addEventListener('load', updateNavTheme);
 
 if (toggle && mobileMenu) {
   toggle.addEventListener('click', () => {
@@ -35,8 +60,9 @@ if (reveals.length) {
 }
 
 if (form) {
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
+
     const data = new FormData(form);
     const name = data.get('name')?.toString().trim() || '';
     const email = data.get('email')?.toString().trim() || '';
@@ -44,11 +70,31 @@ if (form) {
 
     if (!name || !email || !phone) {
       formMessage.textContent = 'Please complete the required fields so we can contact you.';
+      formMessage.className = 'form-message error';
       return;
     }
 
-    formMessage.textContent = `Thank you, ${name}. Your consultation request has been received and our team will be in touch shortly.`;
-    form.reset();
+    formMessage.textContent = 'Sending your request…';
+    formMessage.className = 'form-message';
+
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/venshaskin@gmail.com', {
+        method: 'POST',
+        body: data,
+        headers: { Accept: 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error('Submission failed');
+      }
+
+      formMessage.textContent = `Thank you, ${name}. Your consultation request has been sent to our team. We will be in touch shortly.`;
+      formMessage.className = 'form-message success';
+      form.reset();
+    } catch {
+      formMessage.textContent = 'Something went wrong. Please try again or contact us at venshaskin@gmail.com.';
+      formMessage.className = 'form-message error';
+    }
   });
 }
 
@@ -57,22 +103,22 @@ const techData = {
   vacuum: {
     title: 'Negative pressure & roller',
     desc: 'Combines vacuum negative pressure with a double-helix electric roller (15 rpm). Enhances the kneading effect of subcutaneous fat by absorbing skin tissue and promotes deeper transmission of radio frequency energy.',
-    image: 'assets/images/vacuum-roller.png',
+    image: 'assets/images/vacuumRoller-removebg-preview.png',
   },
   rf: {
     title: 'Radio frequency lifting',
     desc: 'Accurately heats the deep layer of the epidermis to destroy aging collagen fibers and stimulate the synthesis of new collagen, effectively improving wrinkles and skin texture.',
-    image: 'assets/images/multipolar-rf.png',
+    image: 'assets/images/multiPolarRF-removebg-preview.png',
   },
   cavitation: {
     title: 'Cavitation fat reduction',
     desc: 'Uses 40kHz low-frequency ultrasound to support disruption of fat cells, assisting body contouring when combined with other modalities in a professional protocol.',
-    image: 'assets/images/cavitation.png',
+    image: 'assets/images/cavitation-removebg-preview.png',
   },
   infrared: {
     title: '940nm near-infrared light',
     desc: 'Increases blood flow by approximately 30% and activates aerobic metabolism of fat cells, preparing tissue for subsequent treatment steps.',
-    image: 'assets/images/bipolar-rf.png',
+    image: 'assets/images/bipolarRF-removebg-preview.png',
   },
   synergy: {
     title: 'Full-dimensional synergy',
