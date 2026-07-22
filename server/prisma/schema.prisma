@@ -21,12 +21,6 @@ enum AppointmentStatus {
   RESCHEDULED
 }
 
-enum NotificationChannel {
-  WEBSITE
-  EMAIL
-  SMS
-}
-
 enum PromotionStatus {
   DRAFT
   ACTIVE
@@ -49,46 +43,11 @@ model User {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  membershipProgress MembershipProgress?
   appointments       Appointment[]
   consultations      Consultation[]
   machineInquiries   MachineInquiry[]
-  notifications      Notification[]
   messages           Message[]
-  rewards            Reward[]
-}
-
-model MembershipLevel {
-  id                    String   @id @default(cuid())
-  name                  String
-  slug                  String   @unique
-  description           String
-  minConsultations      Int      @default(0)
-  benefits              String
-  colorTheme            String
-  frontCardImageUrl     String?
-  backCardImageUrl      String?
-  badgeImageUrl         String?
-  rewardDescription     String?
-  discountPercent       Float?
-  priority              Int      @default(0)
-  displayOrder          Int      @default(0)
-  isActive              Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-
-  members MembershipProgress[]
-}
-
-model MembershipProgress {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  membershipLevelId String
-  sessionsCompleted Int      @default(0)
-  updatedAt         DateTime @updatedAt
-
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  membershipLevel MembershipLevel @relation(fields: [membershipLevelId], references: [id])
+  notifications      Notification[]
 }
 
 model Consultation {
@@ -104,12 +63,14 @@ model Consultation {
   status      String   @default("new")
   createdAt   DateTime @default(now())
 
-  user User? @relation(fields: [userId], references: [id])
+  user         User?         @relation(fields: [userId], references: [id])
+  appointments Appointment[]
 }
 
 model MachineInquiry {
   id           String   @id @default(cuid())
-  userId       String
+  userId       String?
+  name         String?
   businessName String?
   phone        String
   email        String
@@ -121,21 +82,23 @@ model MachineInquiry {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id])
 }
 
 model Appointment {
-  id          String            @id @default(cuid())
-  userId      String
-  treatment   String
-  scheduledAt DateTime
-  status      AppointmentStatus @default(PENDING)
-  notes       String?
-  reminderSent Boolean          @default(false)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id             String            @id @default(cuid())
+  userId         String
+  consultationId String?
+  treatment      String
+  scheduledAt    DateTime
+  status         AppointmentStatus @default(PENDING)
+  notes          String?
+  reminderSent   Boolean           @default(false)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consultation Consultation? @relation(fields: [consultationId], references: [id])
 }
 
 model EmailTemplate {
@@ -145,7 +108,6 @@ model EmailTemplate {
   subject   String
   bodyHtml  String
   isActive  Boolean  @default(true)
-  updatedAt DateTime @updatedAt
 }
 
 model Message {
@@ -153,8 +115,10 @@ model Message {
   userId     String?
   fromEmail  String
   toEmail    String
+  toPhone    String?
   subject    String
   body       String
+  channel    String   @default("email")
   isRead     Boolean  @default(false)
   isStarred  Boolean  @default(false)
   isArchived Boolean  @default(false)
@@ -162,30 +126,6 @@ model Message {
   createdAt  DateTime @default(now())
 
   user User? @relation(fields: [userId], references: [id])
-}
-
-model Notification {
-  id        String              @id @default(cuid())
-  userId    String?
-  title     String
-  body      String
-  channel   NotificationChannel @default(WEBSITE)
-  isRead    Boolean             @default(false)
-  createdAt DateTime            @default(now())
-
-  user User? @relation(fields: [userId], references: [id])
-}
-
-model Reward {
-  id          String   @id @default(cuid())
-  userId      String
-  title       String
-  description String
-  discount    Float?
-  redeemed    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Promotion {
@@ -224,6 +164,7 @@ model Testimonial {
   author       String
   quote        String
   imageUrl     String?
+  featured     Boolean  @default(false)
   displayOrder Int      @default(0)
   isActive     Boolean  @default(true)
 }
@@ -233,8 +174,24 @@ model GalleryItem {
   title        String?
   imageUrl     String
   caption      String?
+  category     String?
   displayOrder Int      @default(0)
   isActive     Boolean  @default(true)
+}
+
+model Research {
+  id           String   @id @default(cuid())
+  title        String
+  summary      String?
+  content      String
+  imageUrl     String?
+  category     String?
+  author       String?
+  source       String?
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model MediaAsset {
@@ -258,4 +215,16 @@ model AnalyticsEvent {
   page      String?
   metadata  String?
   createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  channel   String   @default("WEBSITE")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

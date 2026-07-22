@@ -1,117 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin — VENSHASKIN</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="portal.css" />
-  </head>
-  <body class="portal-body">
-    <header class="portal-header">
-      <div class="container">
-        <a class="portal-brand" href="/">VENSHA<span>SKIN</span></a>
-        <nav class="portal-nav">
-          <a href="/">View site</a>
-          <a href="#" id="logoutLink">Sign out</a>
-        </nav>
-      </div>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — VENSHASKIN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin-body">
 
-    <main class="portal-main">
-      <h1 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:500;margin:0 0 1.5rem;">Admin Dashboard</h1>
+  <!-- ═══ Sidebar ═══ -->
+  <aside class="admin-sidebar">
+    <a class="sidebar-brand" href="/">VENSHA<span>SKIN</span> <span style="font-size:0.55rem;letter-spacing:0.15em;opacity:0.5;display:block;">Admin Panel</span></a>
+    <nav class="sidebar-nav">
 
-      <div class="toggle-row">
-        <div>
-          <strong>Coming Soon Mode</strong>
-          <p>When enabled, the public landing page shows only a &ldquo;Coming Soon&rdquo; screen. Login, admin, and account pages remain accessible.</p>
-        </div>
-        <button type="button" class="toggle-btn" id="comingSoonToggle">Loading…</button>
-      </div>
+      <div class="sidebar-section">Main</div>
+      <a class="sidebar-link active" data-tab="dashboard"><span class="icon">&#9632;</span> Dashboard</a>
+      <a class="sidebar-link" data-tab="inbox"><span class="icon">&#9993;</span> Inbox</a>
+      <a class="sidebar-link" data-tab="appointments"><span class="icon">&#128197;</span> Appointments</a>
 
-      <div class="dash-stats" id="statsRow">
-        <div class="stat-box"><div class="num" id="statConsult">—</div><div class="lbl">Consultations</div></div>
-        <div class="stat-box"><div class="num" id="statMachine">—</div><div class="lbl">New machine inquiries</div></div>
-        <div class="stat-box"><div class="num" id="statUsers">—</div><div class="lbl">Clients</div></div>
-      </div>
+      <div class="sidebar-section">Content</div>
+      <a class="sidebar-link" data-tab="gallery"><span class="icon">&#128247;</span> Gallery</a>
+      <a class="sidebar-link" data-tab="testimonials"><span class="icon">&#128172;</span> Testimonials</a>
+      <a class="sidebar-link" data-tab="research"><span class="icon">&#128214;</span> Research</a>
+      <a class="sidebar-link" data-tab="faqs"><span class="icon">&#63;</span> FAQs</a>
+      <a class="sidebar-link" data-tab="promotions"><span class="icon">&#128176;</span> Promotions</a>
 
-      <div class="dash-grid">
-        <div class="dash-panel">
-          <h2>Recent consultations</h2>
-          <table class="data-table" id="consultTable">
-            <thead><tr><th>Name</th><th>Treatment</th><th>Date</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="dash-panel">
-          <h2>Machine purchase inquiries</h2>
-          <table class="data-table" id="machineTable">
-            <thead><tr><th>Client</th><th>Model</th><th>Status</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </main>
+      <div class="sidebar-section">System</div>
+      <a class="sidebar-link" data-tab="email-templates"><span class="icon">&#9993;</span> Email Templates</a>
+      <a class="sidebar-link" data-tab="cms"><span class="icon">&#128187;</span> Website CMS</a>
+      <a class="sidebar-link" data-tab="media"><span class="icon">&#128444;</span> Media Library</a>
+      <a class="sidebar-link" data-tab="settings"><span class="icon">&#9881;</span> Settings</a>
 
-    <script type="module">
-      import { api, requireAuth, logout } from './portal.js';
+    </nav>
+  </aside>
 
-      document.getElementById('logoutLink').addEventListener('click', (e) => {
-        e.preventDefault();
-        logout();
-      });
+  <!-- ═══ Top Bar ═══ -->
+  <header class="admin-topbar">
+    <div class="flex items-center gap-3">
+      <button class="mobile-menu-btn" type="button" aria-label="Toggle menu">&#9776;</button>
+      <h1 class="topbar-title" id="topbarTitle">Dashboard</h1>
+    </div>
+    <div class="topbar-actions">
+      <span class="topbar-user" id="topbarUser"></span>
+      <a href="/" class="btn btn-ghost btn-sm" target="_blank">&#128279; View Site</a>
+      <button class="btn btn-sm" id="logoutBtn">Sign Out</button>
+    </div>
+  </header>
 
-      const toggle = document.getElementById('comingSoonToggle');
-      let comingSoon = false;
+  <!-- ═══ Main Content ═══ -->
+  <main class="admin-main">
 
-      function renderToggle() {
-        toggle.textContent = comingSoon ? 'Coming Soon: ON' : 'Coming Soon: OFF';
-        toggle.classList.toggle('active', comingSoon);
-      }
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
 
-      toggle.addEventListener('click', async () => {
-        try {
-          const data = await api('/api/admin/settings/coming-soon', {
-            method: 'PUT',
-            body: { enabled: !comingSoon },
-          });
-          comingSoon = data.enabled;
-          renderToggle();
-        } catch (err) {
-          alert(err.message);
-        }
-      });
+    <!-- 1. Dashboard -->
+    <section class="admin-section active" id="tab-dashboard">
+      <div class="loading">Loading dashboard...</div>
+    </section>
 
-      const session = await requireAuth(['ADMIN']);
-      if (!session) throw new Error('Unauthorized');
+    <!-- 2. Appointments -->
+    <section class="admin-section" id="tab-appointments">
+      <div class="loading">Loading...</div>
+    </section>
 
-      const dash = await api('/api/admin/dashboard');
-      comingSoon = dash.comingSoon;
-      renderToggle();
+    <!-- 3. Inbox -->
+    <section class="admin-section" id="tab-inbox">
+      <div class="loading">Loading...</div>
+    </section>
 
-      document.getElementById('statConsult').textContent = dash.stats.consultations;
-      document.getElementById('statMachine').textContent = dash.stats.machineInquiries;
-      document.getElementById('statUsers').textContent = dash.stats.users;
+    <!-- 7. Gallery -->
+    <section class="admin-section" id="tab-gallery">
+      <div class="loading">Loading...</div>
+    </section>
 
-      document.querySelector('#consultTable tbody').innerHTML = dash.recentConsultations.length
-        ? dash.recentConsultations.map((c) => `
-          <tr>
-            <td>${c.name}</td>
-            <td>${c.treatment}</td>
-            <td>${new Date(c.createdAt).toLocaleDateString()}</td>
-          </tr>`).join('')
-        : '<tr><td colspan="3" style="color:#888;">No consultations yet.</td></tr>';
+    <!-- 8. Testimonials -->
+    <section class="admin-section" id="tab-testimonials">
+      <div class="loading">Loading...</div>
+    </section>
 
-      document.querySelector('#machineTable tbody').innerHTML = dash.recentMachineInquiries.length
-        ? dash.recentMachineInquiries.map((m) => `
-          <tr>
-            <td>${m.user.firstName} ${m.user.lastName}</td>
-            <td>${m.machineModel} ×${m.quantity}</td>
-            <td>${m.status}</td>
-          </tr>`).join('')
-        : '<tr><td colspan="3" style="color:#888;">No machine inquiries yet.</td></tr>';
-    </script>
-  </body>
+    <!-- 9. Research -->
+    <section class="admin-section" id="tab-research">
+      <div class="loading">Loading...</div>
+    </section>
+
+    <!-- 10. FAQs -->
+    <section class="admin-section" id="tab-faqs">
+      <div class="loading">Loading...</div>
+    </section>
+
+    <!-- 11. Promotions -->
+    <section class="admin-section" id="tab-promotions">
+      <div class="loading">Loading...</div>
+    </section>
+
+    <!-- 12. Website CMS -->
+    <section class="admin-section" id="tab-cms">
+      <div class="loading">Loading...</div>
+    </section>
+
+    <!-- 14. Media Library -->
+    <section class="admin-section" id="tab-media">
+      <div class="loading">Loading...</div>
+    </section>
+
+    <!-- 15. Email Templates -->
+    <section class="admin-section" id="tab-email-templates">
+      <div class="loading">Loading...</div>
+    </section>
+
+    <!-- 16. Settings -->
+    <section class="admin-section" id="tab-settings">
+      <div class="loading">Loading...</div>
+    </section>
+
+  </main>
+
+  <script>window.VENSHA_API = 'http://localhost:3000';</script>
+  <script src="admin.js"></script>
+</body>
 </html>

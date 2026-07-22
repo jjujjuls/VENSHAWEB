@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
-import { sendWelcomeEmail } from '../services/emailService.js';
+
 
 const prisma = new PrismaClient();
 const router = Router();
@@ -42,7 +42,6 @@ router.post('/register', async (req, res) => {
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
     if (existing) return res.status(409).json({ error: 'Email already registered.' });
 
-    const classic = await prisma.membershipLevel.findFirst({ where: { slug: 'classic' } });
     const passwordHash = await bcrypt.hash(password, 12);
 
     const user = await prisma.user.create({
@@ -53,13 +52,8 @@ router.post('/register', async (req, res) => {
         lastName: lastName.trim(),
         phone: phone?.trim() || null,
         role: 'CLIENT',
-        membershipProgress: classic
-          ? { create: { membershipLevelId: classic.id, sessionsCompleted: 0 } }
-          : undefined,
       },
     });
-
-    sendWelcomeEmail(user).catch(console.error);
 
     res.status(201).json({ token: signToken(user), user: publicUser(user) });
   } catch (error) {
@@ -77,6 +71,12 @@ router.post('/login', async (req, res) => {
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) return res.status(401).json({ error: 'Invalid credentials.' });
 
+    /* If coming soon is enabled, only ADMIN can log in */
+    const comingSoon = await prisma.siteSetting.findUnique({ where: { key: 'site_coming_soon' } });
+    if (comingSoon?.value === 'true' && user.role !== 'ADMIN') {
+      return res.status(403).json({ error: 'Site is in maintenance mode. Please check back later.' });
+    }
+
     res.json({ token: signToken(user), user: publicUser(user) });
   } catch (error) {
     console.error(error);
@@ -85,21 +85,55 @@ router.post('/login', async (req, res) => {
 });
 
 router.get('/me', requireAuth(), async (req, res) => {
-  const membership = await prisma.membershipProgress.findUnique({
-    where: { userId: req.user.id },
-    include: { membershipLevel: true },
-  });
-
   res.json({
     user: publicUser(req.user),
-    membership: membership
-      ? {
-          level: membership.membershipLevel.name,
-          sessionsCompleted: membership.sessionsCompleted,
-          minConsultations: membership.membershipLevel.minConsultations,
-        }
-      : null,
   });
+});
+
+/* ─── Update profile ─── */
+router.put('/profile', requireAuth(), async (req, res) => {
+  try {
+    const { firstName, lastName, phone } = req.body;
+    const data = {};
+    if (firstName?.trim()) data.firstName = firstName.trim();
+    if (lastName?.trim()) data.lastName = lastName.trim();
+    if (phone !== undefined) data.phone = phone?.trim() || null;
+
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data,
+    });
+    res.json({ user: publicUser(user) });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ error: 'Unable to update profile.' });
+  }
+});
+
+/* ─── Change password ─── */
+router.put('/password', requireAuth(), async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current and new password are required.' });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    }
+
+    const valid = await bcrypt.compare(currentPassword, req.user.passwordHash);
+    if (!valid) return res.status(401).json({ error: 'Current password is incorrect.' });
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { passwordHash },
+    });
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Password change error:', error);
+    res.status(500).json({ error: 'Unable to change password.' });
+  }
 });
 
 export default router;

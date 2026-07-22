@@ -1,3 +1,8 @@
+/* ═══════════════════════════════════════════
+   VENSHA SKIN — Landing Page Interactions
+   Navigation, scroll effects, booking form, tech tabs
+   ═══════════════════════════════════════════ */
+
 const toggle = document.querySelector('.menu-toggle');
 const mobileMenu = document.getElementById('mobileMenu');
 const navShell = document.getElementById('navShell');
@@ -15,13 +20,13 @@ fetch('/api/settings/status')
   })
   .catch(() => {});
 
-/* Show admin link in nav when signed in */
+/* Show "My account" in nav when signed in */
 try {
   const stored = JSON.parse(localStorage.getItem('vensha_user') || 'null');
   const signInLink = document.querySelector('.nav-signin');
   if (stored && signInLink) {
-    signInLink.textContent = 'Admin';
-    signInLink.href = '/admin.html';
+    signInLink.textContent = 'Account';
+    signInLink.href = stored.role === 'ADMIN' ? '/admin.html' : '/account.html';
   }
 } catch { /* ignore */ }
 
@@ -198,88 +203,7 @@ techTabs.forEach((tab) => {
     if (data && techTitle && techDesc) {
       techTitle.textContent = data.title;
       techDesc.textContent = data.desc;
-      if (techImage && data.image) {
-        techImage.src = data.image;
-        techImage.alt = data.title;
-      }
+      if (techImage) techImage.src = data.image;
     }
   });
 });
-
-/* ── Interactive donut chart ── */
-const segments = [
-  { id: '68', value: 68, label: '10%+ result', color: '#b8cdd9' },
-  { id: '29', value: 29, label: '5–10% result', color: '#c4b8d9' },
-  { id: '3', value: 3, label: '<5% result', color: '#d9d4b8' },
-];
-
-const RING = 440;
-const circumference = 2 * Math.PI * 70;
-let offset = 0;
-
-const donutSegments = document.querySelectorAll('.donut-segment');
-const chartLegend = document.getElementById('chartLegend');
-const donutCenter = document.querySelector('.donut-center');
-const donutCenterSub = document.querySelector('.donut-center-sub');
-
-function highlightSegment(id) {
-  donutSegments.forEach((seg) => seg.classList.toggle('active', seg.dataset.segment === id));
-  chartLegend?.querySelectorAll('li').forEach((li) => {
-    li.classList.toggle('active', li.dataset.segment === id);
-  });
-
-  const seg = segments.find((s) => s.id === id);
-  if (seg && donutCenter && donutCenterSub) {
-    donutCenter.textContent = `${seg.value}%`;
-    donutCenterSub.textContent = seg.label;
-  }
-}
-
-segments.forEach((seg, i) => {
-  const el = donutSegments[i];
-  if (!el) return;
-
-  const dash = (seg.value / 100) * circumference;
-  el.setAttribute('stroke-dasharray', `${dash} ${circumference - dash}`);
-  el.setAttribute('stroke-dashoffset', `-${offset}`);
-  el.setAttribute('stroke', seg.color);
-  offset += dash;
-
-  el.addEventListener('mouseenter', () => highlightSegment(seg.id));
-  el.addEventListener('click', () => highlightSegment(seg.id));
-});
-
-chartLegend?.querySelectorAll('li').forEach((li) => {
-  li.addEventListener('mouseenter', () => highlightSegment(li.dataset.segment));
-  li.addEventListener('click', () => highlightSegment(li.dataset.segment));
-});
-
-highlightSegment('68');
-
-/* ── Body map hotspots ── */
-const hotspotData = {
-  firm: { value: '+82%', label: 'Firm Skin' },
-  waist: { value: '−3cm', label: 'Waist Circumference' },
-  hip: { value: '−3cm', label: 'Hip Circumference' },
-  cellulite: { value: '−85%', label: 'Cellulite' },
-};
-
-const hotspots = document.querySelectorAll('.hotspot');
-const hotspotDetail = document.getElementById('hotspotDetail');
-
-function showHotspot(id) {
-  hotspots.forEach((h) => h.classList.toggle('active', h.dataset.hotspot === id));
-  const data = hotspotData[id];
-  if (data && hotspotDetail) {
-    hotspotDetail.querySelector('.hotspot-detail-value').textContent = data.value;
-    hotspotDetail.querySelector('.hotspot-detail-label').textContent = data.label;
-  }
-}
-
-hotspots.forEach((spot) => {
-  spot.addEventListener('mouseenter', () => showHotspot(spot.dataset.hotspot));
-  spot.addEventListener('focus', () => showHotspot(spot.dataset.hotspot));
-  spot.addEventListener('click', () => showHotspot(spot.dataset.hotspot));
-});
-
-showHotspot('firm');

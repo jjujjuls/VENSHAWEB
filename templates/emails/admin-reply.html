@@ -3,57 +3,186 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VENSHA SKIN Response</title>
+<title>{{title}}</title>
 </head>
-<body style="margin:0;padding:40px;background:#F5F3F0;font-family:Arial,Helvetica,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<body style="margin:0;padding:40px;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0">
 <tr>
 <td align="center">
-<table width="650" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.08);border:1px solid rgba(184,155,94,0.18);">
+
+<table width="650" cellpadding="0" cellspacing="0"
+style="
+background:#ffffff;
+border-radius:18px;
+overflow:hidden;
+box-shadow:0 10px 40px rgba(0,0,0,.08);
+">
+
+<!-- Header -->
+
 <tr>
-<td style="padding:50px 45px 30px;text-align:center;background:#ffffff;border-bottom:1px solid #ececec;">
-<h1 style="margin:0;font-size:42px;font-family:Georgia,serif;font-weight:500;letter-spacing:1px;color:#111111;">VENSHA</h1>
-<div style="margin-top:8px;font-size:14px;letter-spacing:8px;color:#B89B5E;">SKIN</div>
-<div style="margin:18px auto 0;width:90px;height:2px;background:#B89B5E;"></div>
-</td>
-</tr>
-<tr>
-<td style="padding:40px 45px 20px;background:#ffffff;">
-<p style="margin:0;font-size:16px;line-height:28px;color:#777;">Dear {{name}},</p>
-<h2 style="margin:20px 0 0;font-family:Georgia,serif;font-size:28px;font-weight:500;color:#111111;">A VENSHA specialist has replied</h2>
-<p style="margin:24px 0 0;font-size:15px;line-height:26px;color:#555;">
-Thank you for reaching out — your message is important to us. Below is the response from the VENSHA team.
-</p>
-</td>
-</tr>
-<tr>
-<td style="padding:0 45px 40px;background:#f8f5f1;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;border:1px solid rgba(184,155,94,0.18);">
-<tr>
-<td style="padding:32px;">
-<div style="font-size:15px;line-height:26px;color:#444;">
-{{message}}
+<td
+style="
+padding:50px;
+text-align:center;
+background:#ffffff;
+border-bottom:1px solid #ececec;
+">
+
+<h1
+style="
+margin:0;
+font-size:42px;
+font-family:Georgia,serif;
+font-weight:500;
+letter-spacing:2px;
+color:#111111;
+">
+VENSHA
+</h1>
+
+<div
+style="
+margin-top:8px;
+font-size:15px;
+letter-spacing:8px;
+color:#B89B5E;
+">
+SKIN
 </div>
+
+<div
+style="
+margin-top:18px;
+width:80px;
+height:2px;
+background:#B89B5E;
+display:inline-block;
+">
+</div>
+
 </td>
 </tr>
-</table>
-</td>
-</tr>
+
+<!-- Title -->
+
 <tr>
-<td style="padding:0 45px 40px;background:#ffffff;">
-<p style="margin:0;font-size:14px;line-height:22px;color:#666;">If you would like to continue the conversation, simply reply to this email and our team will follow up directly.</p>
+<td style="padding:45px 55px 20px;">
+
+<h2
+style="
+margin:0;
+font-family:Georgia,serif;
+font-size:32px;
+font-weight:500;
+color:#111111;
+">
+{{headline}}
+</h2>
+
+<p
+style="
+font-size:16px;
+line-height:28px;
+color:#666;
+margin-top:18px;
+">
+{{intro}}
+</p>
+
 </td>
 </tr>
+
+<!-- Message Content -->
+
 <tr>
-<td style="padding:35px 45px 45px;text-align:center;background:#111111;color:#ffffff;">
-<p style="margin:0;font-size:13px;letter-spacing:4px;color:#B89B5E;">VENSHA SKIN</p>
-<p style="margin:10px 0 0;font-size:12px;color:rgba(255,255,255,0.75);">Luxury Body Contouring &amp; Aesthetics</p>
-<p style="margin:14px 0 0;font-size:11px;color:rgba(255,255,255,0.55);">Alabang-Zapote Road, Pamplona Tres, Las Piñas, Metro Manila</p>
+<td style="padding:0 55px 40px;">
+
+<table width="100%" cellpadding="0" cellspacing="0"
+style="
+border:1px solid #eee;
+border-radius:10px;
+">
+
+<tr>
+<td style="padding:24px;font-size:15px;line-height:26px;color:#444;">
+{{message}}
+</td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+
+<!-- CTA -->
+
+<tr>
+<td align="center" style="padding:0 55px 40px;">
+
+<a href="mailto:{{reply_email}}"
+style="
+display:inline-block;
+padding:15px 42px;
+background:#B89B5E;
+color:#fff;
+text-decoration:none;
+border-radius:40px;
+font-weight:bold;
+letter-spacing:.5px;
+font-size:14px;
+">
+Reply to {{name}}
+</a>
+
+</td>
+</tr>
+
+<!-- Footer -->
+
+<tr>
+<td
+style="
+padding:45px;
+text-align:center;
+color:#888;
+font-size:13px;
+">
+
+<div
+style="
+width:80px;
+height:2px;
+background:#B89B5E;
+margin:0 auto 20px;
+">
+</div>
+
+<p style="margin:0;">
+VENSHA SKIN
+</p>
+
+<p style="margin:8px 0 0;font-style:italic;">
+Luxury Body Contouring &amp; Aesthetic Treatments
+</p>
+
+<p style="margin:16px 0 0;font-size:12px;color:#aaa;">
+Alabang-Zapote Road, Pamplona Tres, Las Pi&ntilde;as, Metro Manila
+</p>
+
+<p style="margin:8px 0 0;font-size:12px;color:#aaa;">
+0992 120 9631 &middot; venshaskin@gmail.com
+</p>
+
+</td>
+</tr>
+
+</table>
+
 </td>
 </tr>
 </table>
-</td>
-</tr>
-</table>
+
 </body>
 </html>

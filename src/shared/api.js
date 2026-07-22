@@ -1,22 +1,28 @@
-const API = window.VENSHA_API || 'http://localhost:3001';
+/* ═══════════════════════════════════════════
+   VENSHA SKIN — Shared API & Auth Utilities
+   Used by: Landing SPA, Client Portal, Admin Panel
+   ═══════════════════════════════════════════ */
+
+const API = window.VENSHA_API || window.location.origin;
 const LOCAL_USERS_KEY = 'vensha_local_users';
 const LOCAL_SESSION_KEY = 'vensha_local_session';
 
-function getToken() {
+/* ─── Token Management ─── */
+export function getToken() {
   return localStorage.getItem('vensha_token');
 }
 
-function setToken(token) {
+export function setToken(token) {
   if (token) localStorage.setItem('vensha_token', token);
   else localStorage.removeItem('vensha_token');
 }
 
-function setUser(user) {
+export function setUser(user) {
   if (user) localStorage.setItem('vensha_user', JSON.stringify(user));
   else localStorage.removeItem('vensha_user');
 }
 
-function getUser() {
+export function getUser() {
   try {
     return JSON.parse(localStorage.getItem('vensha_user') || 'null');
   } catch {
@@ -24,6 +30,7 @@ function getUser() {
   }
 }
 
+/* ─── Local Auth (Fallback) ─── */
 function loadLocalUsers() {
   try {
     return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '{}');
@@ -75,7 +82,7 @@ function publicUser(user) {
   };
 }
 
-function createLocalUser({ firstName, lastName, email, password, phone, role = 'CLIENT' }) {
+export function createLocalUser({ firstName, lastName, email, password, phone, role = 'CLIENT' }) {
   if (!email?.trim() || !password || !firstName?.trim() || !lastName?.trim()) {
     throw new Error('Missing required fields.');
   }
@@ -104,7 +111,7 @@ function createLocalUser({ firstName, lastName, email, password, phone, role = '
   return publicUser(users[normalizedEmail]);
 }
 
-function validateLocalUser(email, password) {
+export function validateLocalUser(email, password) {
   if (!email?.trim() || !password) return null;
   const user = getLocalUser(email);
   if (!user || user.passwordHash !== btoa(password)) {
@@ -121,7 +128,23 @@ function localAuthMe() {
   return { user: publicUser(user) };
 }
 
-async function api(path, options = {}) {
+export function localLogin({ email, password }) {
+  const user = validateLocalUser(email, password);
+  if (!user) throw new Error('Invalid credentials.');
+  const token = createLocalToken();
+  setLocalSession(token, email);
+  return { token, user };
+}
+
+export function localRegister(body) {
+  const user = createLocalUser(body);
+  const token = createLocalToken();
+  setLocalSession(token, body.email);
+  return { token, user };
+}
+
+/* ─── API Helper ─── */
+export async function api(path, options = {}) {
   const headers = { Accept: 'application/json', ...(options.headers || {}) };
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -150,14 +173,37 @@ async function api(path, options = {}) {
   return data;
 }
 
-function requireGuest() {
+/* ─── Admin API Helper (non-module context) ─── */
+export function adminApi(path, options = {}) {
+  const headers = { Accept: 'application/json', 'Content-Type': 'application/json' };
+  const token = getToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const fetchOptions = { ...options, headers };
+  if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
+    fetchOptions.body = JSON.stringify(options.body);
+  }
+  if (options.body instanceof FormData) {
+    delete headers['Content-Type'];
+    fetchOptions.body = options.body;
+  }
+
+  return fetch(`${API}${path}`, fetchOptions).then(async (res) => {
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+    return data;
+  });
+}
+
+/* ─── Auth Guards ─── */
+export function requireGuest() {
   const user = getUser() || localAuthMe()?.user;
   if (user) {
     window.location.href = user.role === 'ADMIN' ? '/admin.html' : '/account.html';
   }
 }
 
-async function requireAuth(roles = []) {
+export async function requireAuth(roles = []) {
   const token = getToken();
   if (!token) {
     window.location.href = '/login.html';
@@ -186,38 +232,15 @@ async function requireAuth(roles = []) {
   }
 }
 
-function logout() {
+export function logout() {
   setToken(null);
   setUser(null);
   clearLocalSession();
   window.location.href = '/login.html';
 }
 
-function showMsg(el, text, type = '') {
+export function showMsg(el, text, type = '') {
   if (!el) return;
   el.textContent = text;
   el.className = `portal-msg${type ? ` ${type}` : ''}`;
 }
-
-function localRegister(body) {
-  const user = createLocalUser(body);
-  const token = createLocalToken();
-  setToken(token);
-  setUser(user);
-  setLocalSession(token, user.email);
-  return { token, user };
-}
-
-function localLogin(body) {
-  const user = validateLocalUser(body.email, body.password);
-  if (!user) {
-    throw new Error('Invalid credentials.');
-  }
-  const token = createLocalToken();
-  setToken(token);
-  setUser(user);
-  setLocalSession(token, user.email);
-  return { token, user };
-}
-
-export { api, getToken, setToken, getUser, setUser, requireGuest, requireAuth, logout, showMsg, localRegister, localLogin };
