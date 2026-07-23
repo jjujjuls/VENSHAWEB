@@ -20,6 +20,7 @@ dotenv.config({ path: path.join(path.dirname(fileURLToPath(import.meta.url)), '.
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, '../..');
+const publicDir = path.join(rootDir, 'public');
 const app = express();
 
 const PORTAL_PAGES = new Set([
@@ -77,22 +78,22 @@ function sendWithApiInjection(res, filePath) {
 app.get(['/', '/index.html'], async (req, res, next) => {
   try {
     const filePath = await isComingSoonEnabled()
-      ? path.join(rootDir, 'coming-soon.html')
-      : path.join(rootDir, 'index.html');
+      ? path.join(publicDir, 'coming-soon.html')
+      : path.join(publicDir, 'index.html');
     sendWithApiInjection(res, filePath);
   } catch (error) {
     next(error);
   }
 });
 
-app.use(express.static(rootDir, { index: false }));
+app.use(express.static(publicDir, { index: false }));
 app.use('/templates/emails', express.static(path.join(rootDir, 'templates/emails')));
 
 app.get('*', async (req, res, next) => {
   if (req.path.startsWith('/api')) return next();
 
   if (PORTAL_PAGES.has(req.path)) {
-    const filePath = path.join(rootDir, req.path.slice(1));
+    const filePath = path.join(publicDir, req.path.slice(1));
     if (fs.existsSync(filePath)) {
       return sendWithApiInjection(res, filePath);
     }
@@ -100,8 +101,8 @@ app.get('*', async (req, res, next) => {
 
   try {
     const filePath = await isComingSoonEnabled()
-      ? path.join(rootDir, 'coming-soon.html')
-      : path.join(rootDir, 'index.html');
+      ? path.join(publicDir, 'coming-soon.html')
+      : path.join(publicDir, 'index.html');
     sendWithApiInjection(res, filePath);
   } catch (error) {
     next(error);
