@@ -6,7 +6,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const templatesDir = path.join(__dirname, '../../../templates/emails');
+const templatesDir = path.join(process.cwd(), 'templates/emails');
 
 const TEMPLATE_DEFAULTS = {
   booking: {
