@@ -1,20 +1,10 @@
 import { Router } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
-
+import { supabaseAdmin } from '../lib/supabase.js';
 
 const prisma = new PrismaClient();
 const router = Router();
-
-function signToken(user) {
-  return jwt.sign(
-    { sub: user.id, role: user.role, email: user.email },
-    process.env.JWT_SECRET,
-    { expiresIn: '7d' }
-  );
-}
 
 function publicUser(user) {
   return {
@@ -39,15 +29,20 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 8 characters.' });
     }
 
-    const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
-    if (existing) return res.status(409).json({ error: 'Email already registered.' });
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: email.toLowerCase().trim(),
+      password,
+      email_confirm: true
+    });
 
-    const passwordHash = await bcrypt.hash(password, 12);
+    if (authError) {
+      return res.status(400).json({ error: authError.message });
+    }
 
     const user = await prisma.user.create({
       data: {
+        id: authData.user.id,
         email: email.toLowerCase().trim(),
-        passwordHash,
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         phone: phone?.trim() || null,
@@ -55,7 +50,16 @@ router.post('/register', async (req, res) => {
       },
     });
 
-    res.status(201).json({ token: signToken(user), user: publicUser(user) });
+    const { data: signInData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+      email: email.toLowerCase().trim(),
+      password
+    });
+
+    if (signInError) {
+      return res.status(401).json({ error: 'Login failed after registration.' });
+    }
+
+    res.status(201).json({ token: signInData.session.access_token, user: publicUser(user) });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Registration failed.' });
@@ -65,11 +69,20 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await prisma.user.findUnique({ where: { email: email?.toLowerCase().trim() } });
-    if (!user?.passwordHash) return res.status(401).json({ error: 'Invalid credentials.' });
+    
+    const { data, error } = await supabaseAdmin.auth.signInWithPassword({ 
+      email: email?.toLowerCase().trim(), 
+      password 
+    });
 
-    const valid = await bcrypt.compare(password, user.passwordHash);
-    if (!valid) return res.status(401).json({ error: 'Invalid credentials.' });
+    if (error || !data.session) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: data.user.id } });
+    if (!user) {
+      return res.status(401).json({ error: 'User record not found.' });
+    }
 
     /* If coming soon is enabled, only ADMIN can log in */
     const comingSoon = await prisma.siteSetting.findUnique({ where: { key: 'site_coming_soon' } });
@@ -77,7 +90,7 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ error: 'Site is in maintenance mode. Please check back later.' });
     }
 
-    res.json({ token: signToken(user), user: publicUser(user) });
+    res.json({ token: data.session.access_token, user: publicUser(user) });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Login failed.' });
@@ -121,14 +134,21 @@ router.put('/password', requireAuth(), async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 8 characters.' });
     }
 
-    const valid = await bcrypt.compare(currentPassword, req.user.passwordHash);
-    if (!valid) return res.status(401).json({ error: 'Current password is incorrect.' });
-
-    const passwordHash = await bcrypt.hash(newPassword, 12);
-    await prisma.user.update({
-      where: { id: req.user.id },
-      data: { passwordHash },
+    const { error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+      email: req.user.email,
+      password: currentPassword
     });
+
+    if (signInError) return res.status(401).json({ error: 'Current password is incorrect.' });
+
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(req.user.id, {
+      password: newPassword
+    });
+
+    if (updateError) {
+      return res.status(500).json({ error: 'Failed to update password.' });
+    }
+
     res.json({ ok: true });
   } catch (error) {
     console.error('Password change error:', error);

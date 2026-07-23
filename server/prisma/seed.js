@@ -1,6 +1,18 @@
 import { PrismaClient } from '@prisma/client';
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const prisma = new PrismaClient();
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  { auth: { autoRefreshToken: false, persistSession: false } }
+);
 
 export async function seedDatabase() {
   const settings = [
@@ -23,22 +35,55 @@ export async function seedDatabase() {
     });
   }
 
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@gmail.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  /* ─── Create Admin User via Supabase Auth ─── */
+  const adminEmail = process.env.ADMIN_EMAIL || 'venshaskin@gmail.com';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin12345';
   const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } });
+
   if (!existingAdmin) {
-    const bcrypt = await import('bcryptjs');
-    await prisma.user.create({
-      data: {
-        email: adminEmail,
-        firstName: 'VENSHA',
-        lastName: 'Admin',
-        role: 'ADMIN',
-        emailVerified: true,
-        passwordHash: await bcrypt.default.hash(adminPassword, 12),
-      },
+    /* Create Supabase Auth user first */
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: adminEmail,
+      password: adminPassword,
+      email_confirm: true,
     });
-    console.log(`Admin user created: ${adminEmail} / ${adminPassword}`);
+
+    if (authError) {
+      console.error('Failed to create Supabase Auth admin:', authError.message);
+      /* Try to find existing Supabase auth user */
+      const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
+      const existingAuthUser = listData?.users?.find(u => u.email === adminEmail);
+      if (existingAuthUser) {
+        await prisma.user.create({
+          data: {
+            id: existingAuthUser.id,
+            email: adminEmail,
+            firstName: 'VENSHA',
+            lastName: 'Admin',
+            role: 'ADMIN',
+            emailVerified: true,
+          },
+        });
+        console.log(`Admin user linked to existing Supabase auth: ${adminEmail}`);
+      } else {
+        console.error('Could not create or find admin auth user.');
+      }
+    } else {
+      /* Create corresponding Prisma User record with the Supabase Auth user ID */
+      await prisma.user.create({
+        data: {
+          id: authData.user.id,
+          email: adminEmail,
+          firstName: 'VENSHA',
+          lastName: 'Admin',
+          role: 'ADMIN',
+          emailVerified: true,
+        },
+      });
+      console.log(`Admin user created: ${adminEmail} / ${adminPassword}`);
+    }
+  } else {
+    console.log(`Admin user already exists: ${adminEmail}`);
   }
 
   const emailTemplates = [
@@ -68,9 +113,7 @@ export async function seedDatabase() {
     { question: 'Is there any downtime?', answer: 'No downtime is required. Most clients resume normal activities immediately after treatment.', displayOrder: 5 },
   ];
   for (const faq of faqs) {
-    await prisma.faq.upsert({ where: { id: faq.question }, update: faq, create: { id: undefined, ...faq } }).catch(() =>
-      prisma.faq.create({ data: faq })
-    );
+    await prisma.faq.create({ data: faq }).catch(() => {});
   }
 
   /* ─── Seed Testimonials ─── */

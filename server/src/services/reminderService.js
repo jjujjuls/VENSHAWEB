@@ -4,7 +4,6 @@ import { sendAppointmentReminderEmail } from './emailService.js';
 const prisma = new PrismaClient();
 
 const REMINDER_HOURS = Number(process.env.REMINDER_HOURS_BEFORE || 24);
-const CHECK_INTERVAL_MS = Number(process.env.REMINDER_CHECK_INTERVAL_MS || 15 * 60 * 1000);
 
 export async function processAppointmentReminders() {
   const now = new Date();
@@ -33,18 +32,4 @@ export async function processAppointmentReminders() {
   }
 
   return upcoming.length;
-}
-
-export function startReminderScheduler() {
-  const run = async () => {
-    try {
-      const count = await processAppointmentReminders();
-      if (count > 0) console.log(`[reminder] Processed ${count} reminder(s)`);
-    } catch (error) {
-      console.error('[reminder] Scheduler error:', error);
-    }
-  };
-
-  run();
-  return setInterval(run, CHECK_INTERVAL_MS);
 }

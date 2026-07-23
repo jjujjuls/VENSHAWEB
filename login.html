@@ -51,53 +51,58 @@
       </div>
     </main>
 
-    <script>
-      (function() {
-        const API = window.VENSHA_API || window.location.origin;
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-        async function api(path, opts) {
-          const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
-          const token = localStorage.getItem('vensha_token');
-          if (token) headers.Authorization = 'Bearer ' + token;
-          const res = await fetch(API + path, { ...opts, headers });
-          const data = await res.json().catch(() => ({}));
-          if (!res.ok) {
-            const err = new Error(data.error || 'Login failed (' + res.status + ')');
-            err.status = res.status;
-            if (res.status === 0 || res.status === 501 || res.status === 404) err.isNetworkError = true;
-            throw err;
-          }
-          return data;
+      const supabase = createClient(
+        'https://anvwpodhvhjpnlquktuo.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFudndwb2RodmhqcG5scXVrdHVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4MjcxOTQsImV4cCI6MjEwMDQwMzE5NH0.hh7NY1_hGtqwp0qOZQ-ewW5RdPmyYGOkLJHWc4PjHIE'
+      );
+
+      const API = window.VENSHA_API || window.location.origin;
+
+      async function apiCall(path, opts) {
+        const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) headers.Authorization = 'Bearer ' + session.access_token;
+        const res = await fetch(API + path, { ...opts, headers });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Request failed (' + res.status + ')');
+        return data;
+      }
+
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById('loginMsg');
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        msg.textContent = 'Signing in…';
+        msg.className = 'login-msg';
+
+        try {
+          /* Sign in via Supabase Auth */
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw new Error(error.message);
+
+          /* Fetch user profile from our backend */
+          const profile = await apiCall('/api/auth/me', { method: 'GET' });
+
+          localStorage.setItem('vensha_token', data.session.access_token);
+          localStorage.setItem('vensha_user', JSON.stringify(profile.user));
+          window.location.href = '/admin.html';
+        } catch (err) {
+          msg.textContent = err.message;
+          msg.className = 'login-msg error';
         }
+      });
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const msg = document.getElementById('loginMsg');
-          const email = document.getElementById('email').value.trim();
-          const password = document.getElementById('password').value;
-
-          msg.textContent = 'Signing in…';
-          msg.className = 'login-msg';
-
-          try {
-            const data = await api('/api/auth/login', {
-              method: 'POST',
-              body: JSON.stringify({ email, password }),
-            });
-            localStorage.setItem('vensha_token', data.token);
-            localStorage.setItem('vensha_user', JSON.stringify(data.user));
-            window.location.href = '/admin.html';
-          } catch (err) {
-            msg.textContent = err.message;
-            msg.className = 'login-msg error';
-          }
-        });
-
-        /* Redirect to admin if already logged in */
-        if (localStorage.getItem('vensha_token')) {
-          window.location.replace('/admin.html');
-        }
-      })();
+      /* Redirect to admin if already logged in */
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        localStorage.setItem('vensha_token', session.access_token);
+        window.location.replace('/admin.html');
+      }
     </script>
   </body>
 </html>

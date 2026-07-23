@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -105,18 +105,13 @@ async function loadTemplate(filename) {
   return fs.readFile(filePath, 'utf-8');
 }
 
-function createTransport() {
-  if (!process.env.SMTP_HOST) return null;
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: false,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
+function getResend() {
+  if (!process.env.RESEND_API_KEY) return null;
+  return new Resend(process.env.RESEND_API_KEY);
 }
 
 function getFromAddress() {
-  return `"${process.env.FROM_NAME || 'VENSHA SKIN'}" <${process.env.FROM_EMAIL || 'venshaskin@gmail.com'}>`;
+  return `"${process.env.FROM_NAME || 'VENSHA SKIN'}" <${process.env.FROM_EMAIL || 'onboarding@resend.dev'}>`;
 }
 
 function getAdminEmail() {
@@ -244,13 +239,13 @@ export async function sendBrandedEmail({
     ctaUrl,
   });
 
-  const transport = createTransport();
-  if (!transport) {
-    console.log(`[email] SMTP not configured. Would send "${subject || config.subject}" to ${to}`);
-    return { sent: false, reason: 'smtp_not_configured' };
+  const resend = getResend();
+  if (!resend) {
+    console.log(`[email] Resend not configured. Would send "${subject || config.subject}" to ${to}`);
+    return { sent: false, reason: 'resend_not_configured' };
   }
 
-  await transport.sendMail({
+  await resend.emails.send({
     from: getFromAddress(),
     to,
     subject: subject || config.subject,
@@ -357,7 +352,7 @@ async function buildAdminNotificationEmail(type, data) {
 export async function sendConsultationEmails(consultation) {
   const clientMessage = consultationDetailsHtml(consultation);
 
-  const transport = createTransport();
+  const resend = getResend();
   const adminEmail = getAdminEmail();
 
   /* Save to admin inbox */
@@ -370,15 +365,15 @@ export async function sendConsultationEmails(consultation) {
     },
   }).catch(console.error);
 
-  if (!transport) {
-    console.log('[email] SMTP not configured. Consultation saved; emails skipped.');
-    return { sent: false, reason: 'smtp_not_configured' };
+  if (!resend) {
+    console.log('[email] Resend not configured. Consultation saved; emails skipped.');
+    return { sent: false, reason: 'resend_not_configured' };
   }
 
   const adminHtml = await buildAdminNotificationEmail('consultation', consultation);
 
   await Promise.all([
-    transport.sendMail({
+    resend.emails.send({
       from: getFromAddress(),
       to: adminEmail,
       subject: 'New Consultation Request — VENSHA SKIN',
@@ -413,16 +408,16 @@ export async function sendMachineInquiryEmails(inquiry, user) {
       ${inquiry.message ? `<tr><td style="padding:6px 0;color:#888;">Message</td><td style="padding:6px 0;">${inquiry.message}</td></tr>` : ''}
     </table>`;
 
-  const transport = createTransport();
-  if (!transport) {
-    console.log('[email] SMTP not configured. Machine inquiry saved; emails skipped.');
-    return { sent: false, reason: 'smtp_not_configured' };
+  const resend = getResend();
+  if (!resend) {
+    console.log('[email] Resend not configured. Machine inquiry saved; emails skipped.');
+    return { sent: false, reason: 'resend_not_configured' };
   }
 
   const adminHtml = await buildAdminNotificationEmail('purchase', inquiry);
 
   await Promise.all([
-    transport.sendMail({
+    resend.emails.send({
       from: getFromAddress(),
       to: getAdminEmail(),
       subject: 'Machine Purchase Inquiry — VENSHA SKIN',
@@ -555,8 +550,8 @@ export async function sendBroadcastEmail({ subject, message, templateSlug = 'gen
 
   if (!clients.length) return { sent: false, reason: 'no_recipients' };
 
-  const transport = createTransport();
-  if (!transport) return { sent: false, reason: 'smtp_not_configured' };
+  const resend = getResend();
+  if (!resend) return { sent: false, reason: 'resend_not_configured' };
 
   let sentCount = 0;
   for (const client of clients) {
@@ -579,33 +574,8 @@ export async function sendBroadcastEmail({ subject, message, templateSlug = 'gen
 
 /* ─── SMS Sending (SMTP-to-SMS gateway) ─── */
 export async function sendSms({ to, message }) {
-  /* Use SMTP-to-SMS gateway if SMTP is configured */
-  const transport = createTransport();
-  if (!transport) {
-    console.log(`[sms] SMTP not configured. Would send SMS to ${to}: ${message.slice(0, 50)}...`);
-    return { sent: false, reason: 'smtp_not_configured' };
-  }
-
-  /* Detect carrier from number and use appropriate SMS gateway */
-  const num = to.replace(/\D/g, '');
-  const gateways = [
-    `${num}@sms.globe.com.ph`,
-    `${num}@mail.smart.com`,
-  ];
-
-  try {
-    await transport.sendMail({
-      from: getFromAddress(),
-      to: gateways[0],
-      subject: '',
-      text: message,
-    });
-    console.log(`[sms] Sent to ${to} via SMTP gateway`);
-    return { sent: true };
-  } catch (err) {
-    console.error('[sms] Failed:', err.message);
-    return { sent: false, reason: err.message };
-  }
+  console.log(`[sms] Warning: SMS not supported via Resend. Would send to ${to}: ${message.slice(0, 50)}...`);
+  return { sent: false, reason: 'sms_not_supported' };
 }
 
 export { TEMPLATE_DEFAULTS, formatDateTime, appointmentDetailsHtml };

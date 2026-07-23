@@ -1,9 +1,10 @@
 /* ═══════════════════════════════════════════
    VENSHA SKIN — SPA Router
    Handles page routing for multi-page SPA
+   Migrated to Supabase Auth
    ═══════════════════════════════════════════ */
 
-import { api, setToken, setUser, requireGuest, showMsg, localLogin, localRegister } from '../../shared/api.js';
+import { api, setToken, setUser, requireGuest, showMsg, logout, supabase } from '../../shared/api.js';
 
 (function () {
   'use strict';
@@ -90,18 +91,17 @@ import { api, setToken, setUser, requireGuest, showMsg, localLogin, localRegiste
       const password = document.getElementById('password').value;
       try {
         showMsg(msg, 'Signing in…');
-        let data;
-        try {
-          data = await api('/api/auth/login', { method: 'POST', body: { email, password } });
-        } catch (err) {
-          const fallback = err.isNetworkError || err.status === 501 || err.status === 404 || err.message.includes('Unsupported method');
-          if (fallback) {
-            data = localLogin({ email, password });
-          } else { throw err; }
-        }
-        setToken(data.token);
-        setUser(data.user);
-        window.location.href = data.user.role === 'ADMIN' ? '/admin.html' : '/';
+
+        /* Sign in via Supabase Auth */
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw new Error(error.message);
+
+        /* Fetch user profile from backend */
+        setToken(data.session.access_token);
+        const profile = await api('/api/auth/me');
+
+        setUser(profile.user);
+        window.location.href = profile.user.role === 'ADMIN' ? '/admin.html' : '/';
       } catch (err) { showMsg(msg, err.message, 'error'); }
     });
   }
@@ -124,14 +124,10 @@ import { api, setToken, setUser, requireGuest, showMsg, localLogin, localRegiste
       };
       try {
         showMsg(msg, 'Creating account…');
-        let data;
-        try {
-          data = await api('/api/auth/register', { method: 'POST', body });
-        } catch (err) {
-          const fallback = err.isNetworkError || err.status === 501 || err.status === 404 || err.message.includes('Unsupported method');
-          if (fallback) { data = localRegister(body); }
-          else { throw err; }
-        }
+
+        /* Register via our backend API (which creates Supabase Auth user + Prisma record) */
+        const data = await api('/api/auth/register', { method: 'POST', body });
+
         setToken(data.token);
         setUser(data.user);
         window.location.href = '/';

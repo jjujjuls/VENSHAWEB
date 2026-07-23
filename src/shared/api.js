@@ -1,11 +1,20 @@
 /* ═══════════════════════════════════════════
    VENSHA SKIN — Shared API & Auth Utilities
    Used by: Landing SPA, Client Portal, Admin Panel
+   Migrated to Supabase Auth
    ═══════════════════════════════════════════ */
 
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
 const API = window.VENSHA_API || window.location.origin;
-const LOCAL_USERS_KEY = 'vensha_local_users';
-const LOCAL_SESSION_KEY = 'vensha_local_session';
+
+/* ─── Supabase Client ─── */
+const supabase = createClient(
+  'https://anvwpodhvhjpnlquktuo.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFudndwb2RodmhqcG5scXVrdHVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4MjcxOTQsImV4cCI6MjEwMDQwMzE5NH0.hh7NY1_hGtqwp0qOZQ-ewW5RdPmyYGOkLJHWc4PjHIE'
+);
+
+export { supabase };
 
 /* ─── Token Management ─── */
 export function getToken() {
@@ -30,127 +39,20 @@ export function getUser() {
   }
 }
 
-/* ─── Local Auth (Fallback) ─── */
-function loadLocalUsers() {
-  try {
-    return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '{}');
-  } catch {
-    return {};
-  }
-}
-
-function saveLocalUsers(users) {
-  localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
-}
-
-function getLocalUser(email) {
-  if (!email) return null;
-  const normalizedEmail = email.toLowerCase().trim();
-  const users = loadLocalUsers();
-  return users[normalizedEmail] || null;
-}
-
-function createLocalToken() {
-  return `local-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function setLocalSession(token, email) {
-  localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify({ token, email }));
-}
-
-function getLocalSession() {
-  try {
-    return JSON.parse(localStorage.getItem(LOCAL_SESSION_KEY) || 'null');
-  } catch {
-    return null;
-  }
-}
-
-function clearLocalSession() {
-  localStorage.removeItem(LOCAL_SESSION_KEY);
-}
-
-function publicUser(user) {
-  return {
-    id: user.id || null,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    phone: user.phone,
-    role: user.role || 'CLIENT',
-    memberSince: user.memberSince || null,
-  };
-}
-
-export function createLocalUser({ firstName, lastName, email, password, phone, role = 'CLIENT' }) {
-  if (!email?.trim() || !password || !firstName?.trim() || !lastName?.trim()) {
-    throw new Error('Missing required fields.');
-  }
-  if (password.length < 8) {
-    throw new Error('Password must be at least 8 characters.');
-  }
-
-  const users = loadLocalUsers();
-  const normalizedEmail = email.toLowerCase().trim();
-  if (users[normalizedEmail]) {
-    throw new Error('Email already registered.');
-  }
-
-  users[normalizedEmail] = {
-    id: `local-${Date.now()}`,
-    email: normalizedEmail,
-    firstName: firstName.trim(),
-    lastName: lastName.trim(),
-    phone: phone?.trim() || '',
-    role,
-    memberSince: new Date().toISOString(),
-    passwordHash: btoa(password),
-  };
-
-  saveLocalUsers(users);
-  return publicUser(users[normalizedEmail]);
-}
-
-export function validateLocalUser(email, password) {
-  if (!email?.trim() || !password) return null;
-  const user = getLocalUser(email);
-  if (!user || user.passwordHash !== btoa(password)) {
-    return null;
-  }
-  return publicUser(user);
-}
-
-function localAuthMe() {
-  const session = getLocalSession();
-  if (!session) return null;
-  const user = getLocalUser(session.email);
-  if (!user) return null;
-  return { user: publicUser(user) };
-}
-
-export function localLogin({ email, password }) {
-  const user = validateLocalUser(email, password);
-  if (!user) throw new Error('Invalid credentials.');
-  const token = createLocalToken();
-  setLocalSession(token, email);
-  return { token, user };
-}
-
-export function localRegister(body) {
-  const user = createLocalUser(body);
-  const token = createLocalToken();
-  setLocalSession(token, body.email);
-  return { token, user };
-}
-
 /* ─── API Helper ─── */
 export async function api(path, options = {}) {
   const headers = { Accept: 'application/json', ...(options.headers || {}) };
-  const token = getToken();
+
+  /* Get the current Supabase session token */
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token || getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
+
   if (options.body && !(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
-    options.body = JSON.stringify(options.body);
+    if (typeof options.body === 'object') {
+      options.body = JSON.stringify(options.body);
+    }
   }
 
   let response;
@@ -197,17 +99,28 @@ export function adminApi(path, options = {}) {
 
 /* ─── Auth Guards ─── */
 export function requireGuest() {
-  const user = getUser() || localAuthMe()?.user;
+  const user = getUser();
   if (user) {
     window.location.href = user.role === 'ADMIN' ? '/admin.html' : '/';
   }
 }
 
 export async function requireAuth(roles = []) {
-  const token = getToken();
-  if (!token) {
-    window.location.href = '/login.html';
-    return null;
+  /* Check Supabase session first */
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session) {
+    /* No Supabase session — check if we have a legacy token */
+    const legacyToken = getToken();
+    if (!legacyToken) {
+      window.location.href = '/login.html';
+      return null;
+    }
+  }
+
+  /* Update stored token from Supabase session */
+  if (session) {
+    setToken(session.access_token);
   }
 
   try {
@@ -219,23 +132,18 @@ export async function requireAuth(roles = []) {
     }
     return data;
   } catch {
-    const local = localAuthMe();
-    if (local && (!roles.length || roles.includes(local.user.role))) {
-      setUser(local.user);
-      return { user: local.user, membership: null };
-    }
     setToken(null);
     setUser(null);
-    clearLocalSession();
+    await supabase.auth.signOut();
     window.location.href = '/login.html';
     return null;
   }
 }
 
-export function logout() {
+export async function logout() {
   setToken(null);
   setUser(null);
-  clearLocalSession();
+  await supabase.auth.signOut();
   window.location.href = '/login.html';
 }
 

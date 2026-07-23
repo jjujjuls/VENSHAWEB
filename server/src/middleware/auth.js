@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+import { supabaseAdmin } from '../lib/supabase.js';
 
 const prisma = new PrismaClient();
 
@@ -13,8 +13,12 @@ export function requireAuth(roles = []) {
     }
 
     try {
-      const payload = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await prisma.user.findUnique({ where: { id: payload.sub } });
+      const { data, error } = await supabaseAdmin.auth.getUser(token);
+      if (error || !data.user) {
+        return res.status(401).json({ error: 'Invalid session.' });
+      }
+
+      const user = await prisma.user.findUnique({ where: { id: data.user.id } });
       if (!user) return res.status(401).json({ error: 'Invalid session.' });
 
       if (roles.length && !roles.includes(user.role)) {

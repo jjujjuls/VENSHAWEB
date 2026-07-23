@@ -2,34 +2,21 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import { requireAuth } from '../middleware/auth.js';
 import { getSiteSetting } from '../middleware/auth.js';
+import { supabaseAdmin } from '../lib/supabase.js';
 import {
   sendAdminComposedEmail,
   sendBroadcastEmail,
   TEMPLATE_DEFAULTS,
 } from '../services/emailService.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const prisma = new PrismaClient();
 const router = Router();
 
-/* ─── Multer setup for media uploads ─── */
-const uploadsDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadsDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
-    cb(null, name);
-  },
-});
+/* ─── Multer setup for memory-buffered uploads ─── */
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const allowed = /jpeg|jpg|png|gif|webp|svg|pdf|mp4|mov/;
@@ -724,7 +711,25 @@ router.get('/media', requireAuth(['ADMIN']), async (_req, res) => {
 
 router.post('/media/upload', requireAuth(['ADMIN']), upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
-  const url = `/uploads/${req.file.filename}`;
+  
+  const ext = path.extname(req.file.originalname);
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
+  
+  const { data, error } = await supabaseAdmin.storage
+    .from('media')
+    .upload(filename, req.file.buffer, {
+      contentType: req.file.mimetype,
+      upsert: false,
+    });
+  
+  if (error) {
+    console.error('Supabase storage upload error:', error);
+    return res.status(500).json({ error: 'Upload failed.' });
+  }
+  
+  const { data: urlData } = supabaseAdmin.storage.from('media').getPublicUrl(filename);
+  const url = urlData.publicUrl;
+  
   const asset = await prisma.mediaAsset.create({
     data: { filename: req.file.originalname, url, mimeType: req.file.mimetype, altText: req.body.altText || null },
   });
@@ -740,8 +745,10 @@ router.put('/media/:id', requireAuth(['ADMIN']), async (req, res) => {
 router.delete('/media/:id', requireAuth(['ADMIN']), async (req, res) => {
   const asset = await prisma.mediaAsset.findUnique({ where: { id: req.params.id } });
   if (asset) {
-    const filePath = path.join(uploadsDir, path.basename(asset.url));
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    // Extract filename from Supabase URL
+    const urlParts = asset.url.split('/');
+    const storageFilename = urlParts[urlParts.length - 1];
+    await supabaseAdmin.storage.from('media').remove([storageFilename]);
     await prisma.mediaAsset.delete({ where: { id: req.params.id } });
   }
   res.json({ ok: true });
