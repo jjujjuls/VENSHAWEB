@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
 import { supabaseAdmin } from '../lib/supabase.js';
-
+import { processAppointmentReminders } from '../services/reminderService.js';
 const prisma = new PrismaClient();
 const router = Router();
 
@@ -97,7 +97,17 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Simple rate-limiting for the event-driven reminder check (runs max once per 15 mins per container)
+let lastReminderCheck = 0;
+
 router.get('/me', requireAuth(), async (req, res) => {
+  // Trigger reminders processing in the background (event-driven poor-man's cron)
+  const now = Date.now();
+  if (now - lastReminderCheck > 15 * 60 * 1000) {
+    lastReminderCheck = now;
+    processAppointmentReminders().catch(e => console.error('[event-cron] Reminder err:', e));
+  }
+
   res.json({
     user: publicUser(req.user),
   });
