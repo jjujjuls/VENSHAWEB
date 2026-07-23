@@ -3,7 +3,7 @@
    Handles page routing for multi-page SPA
    ═══════════════════════════════════════════ */
 
-import { api, setToken, setUser, requireGuest, requireAuth, logout, showMsg, localLogin, localRegister } from '../../shared/api.js';
+import { api, setToken, setUser, requireGuest, showMsg, localLogin, localRegister } from '../../shared/api.js';
 
 (function () {
   'use strict';
@@ -14,7 +14,6 @@ import { api, setToken, setUser, requireGuest, requireAuth, logout, showMsg, loc
     '/index.html': 'page-landing',
     '/login.html': 'page-login',
     '/register.html': 'page-register',
-    '/account.html': 'page-account',
     '/admin.html': 'page-admin',
     '/coming-soon.html': 'page-coming-soon',
   };
@@ -33,7 +32,6 @@ import { api, setToken, setUser, requireGuest, requireAuth, logout, showMsg, loc
       'page-landing': 'VENSHASKIN | Megashape Pro',
       'page-login': 'Sign In — VENSHASKIN',
       'page-register': 'Create Account — VENSHASKIN',
-      'page-account': 'My Account — VENSHASKIN',
       'page-admin': 'Admin Panel — VENSHASKIN',
       'page-coming-soon': 'Coming Soon — VENSHASKIN',
     };
@@ -72,10 +70,6 @@ import { api, setToken, setUser, requireGuest, requireAuth, logout, showMsg, loc
         initRegisterPage();
         initializedPages[path] = true;
         break;
-      case '/account.html':
-        initAccountPage();
-        initializedPages[path] = true;
-        break;
       case '/admin.html':
         initAdminPage();
         initializedPages[path] = true;
@@ -107,7 +101,7 @@ import { api, setToken, setUser, requireGuest, requireAuth, logout, showMsg, loc
         }
         setToken(data.token);
         setUser(data.user);
-        window.location.href = data.user.role === 'ADMIN' ? '/admin.html' : '/account.html';
+        window.location.href = data.user.role === 'ADMIN' ? '/admin.html' : '/';
       } catch (err) { showMsg(msg, err.message, 'error'); }
     });
   }
@@ -140,13 +134,10 @@ import { api, setToken, setUser, requireGuest, requireAuth, logout, showMsg, loc
         }
         setToken(data.token);
         setUser(data.user);
-        window.location.href = '/account.html';
+        window.location.href = '/';
       } catch (err) { showMsg(msg, err.message, 'error'); }
     });
   }
-
-  /* --- Account portal --- */
-  async function initAccountPage() {
     /* Logout buttons */
     document.querySelectorAll('.logout-action').forEach((btn) => {
       btn.addEventListener('click', (e) => { e.preventDefault(); logout(); });

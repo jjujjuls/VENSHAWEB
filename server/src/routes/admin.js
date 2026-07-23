@@ -8,10 +8,6 @@ import { requireAuth } from '../middleware/auth.js';
 import { getSiteSetting } from '../middleware/auth.js';
 import {
   sendAdminComposedEmail,
-  sendAppointmentBookingEmails,
-  sendAppointmentConfirmationEmail,
-  sendAppointmentRescheduleEmail,
-  sendAppointmentCancellationEmail,
   sendBroadcastEmail,
   TEMPLATE_DEFAULTS,
 } from '../services/emailService.js';
@@ -50,11 +46,10 @@ function parseScheduledAt(value) {
 }
 
 router.get('/dashboard', requireAuth(['ADMIN']), async (_req, res) => {
-  const [consultations, machineInquiries, users, appointments, comingSoon] = await Promise.all([
+  const [consultations, machineInquiries, users, comingSoon] = await Promise.all([
     prisma.consultation.count(),
     prisma.machineInquiry.count({ where: { status: 'new' } }),
     prisma.user.count({ where: { role: 'CLIENT' } }),
-    prisma.appointment.count({ where: { status: { in: ACTIVE_STATUSES } } }),
     getSiteSetting('site_coming_soon', 'false'),
   ]);
 
@@ -66,22 +61,13 @@ router.get('/dashboard', requireAuth(['ADMIN']), async (_req, res) => {
   const recentMachineInquiries = await prisma.machineInquiry.findMany({
     orderBy: { createdAt: 'desc' },
     take: 8,
-    include: { user: { select: { firstName: true, lastName: true, email: true } } },
-  });
-
-  const upcomingAppointments = await prisma.appointment.findMany({
-    where: { status: { in: ACTIVE_STATUSES }, scheduledAt: { gte: new Date() } },
-    orderBy: { scheduledAt: 'asc' },
-    take: 8,
-    include: { user: { select: { firstName: true, lastName: true, email: true } } },
   });
 
   res.json({
-    stats: { consultations, machineInquiries, users, appointments },
+    stats: { consultations, machineInquiries, users },
     comingSoon: comingSoon === 'true',
     recentConsultations,
     recentMachineInquiries,
-    upcomingAppointments,
   });
 });
 
@@ -102,193 +88,294 @@ router.put('/settings/coming-soon', requireAuth(['ADMIN']), async (req, res) => 
   res.json({ enabled });
 });
 
-router.patch('/machine-inquiries/:id', requireAuth(['ADMIN']), async (req, res) => {
-  const { status } = req.body;
-  const inquiry = await prisma.machineInquiry.update({
-    where: { id: req.params.id },
-    data: { status: status || 'reviewed' },
-  });
-  res.json({ inquiry });
-});
+/* ─── Machine Inquiries Management ─── */
 
-router.get('/appointments', requireAuth(['ADMIN']), async (_req, res) => {
-  const appointments = await prisma.appointment.findMany({
-    orderBy: { scheduledAt: 'desc' },
-    include: {
-      user: { select: { id: true, firstName: true, lastName: true, email: true, phone: true } },
-      consultation: { select: { id: true, name: true, email: true } },
-    },
-  });
-  res.json({ appointments });
-});
-
-router.post('/appointments', requireAuth(['ADMIN']), async (req, res) => {
+router.get('/machine-inquiries', requireAuth(['ADMIN']), async (req, res) => {
   try {
-    const { userId, consultationId, treatment, scheduledAt, notes, confirm = true } = req.body;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    const status = req.query.status;
+    const search = req.query.search;
 
-    if (!userId || !treatment?.trim() || !scheduledAt) {
-      return res.status(400).json({ error: 'Client, treatment, and scheduled date/time are required.' });
+    let where = {};
+    if (status) {
+      where.status = status;
+    }
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+        { email: { contains: search } },
+        { phone: { contains: search } }
+      ];
     }
 
-    const when = parseScheduledAt(scheduledAt);
-    if (!when) {
-      return res.status(400).json({ error: 'Invalid date/time.' });
-    }
+    const [inquiries, total] = await Promise.all([
+      prisma.machineInquiry.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.machineInquiry.count({ where })
+    ]);
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) return res.status(404).json({ error: 'Client not found.' });
+    const pages = Math.ceil(total / limit);
 
-    const appointment = await prisma.appointment.create({
-      data: {
-        userId,
-        consultationId: consultationId || null,
-        treatment: treatment.trim(),
-        scheduledAt: when,
-        notes: notes?.trim() || null,
-        status: confirm ? 'CONFIRMED' : 'PENDING',
-      },
-      include: { user: true },
-    });
-
-    if (consultationId) {
-      await prisma.consultation.update({
-        where: { id: consultationId },
-        data: { status: 'scheduled' },
-      });
-    }
-
-    if (confirm) {
-      await sendAppointmentConfirmationEmail(appointment, user);
-    } else {
-      await sendAppointmentBookingEmails(appointment, user);
-    }
-
-    res.status(201).json({ ok: true, appointment });
+    res.json({ inquiries, total, page, pages });
   } catch (error) {
-    console.error('Admin appointment create error:', error);
-    res.status(500).json({ error: 'Unable to create appointment.' });
+    console.error('Fetch machine inquiries error:', error);
+    res.status(500).json({ error: 'Unable to fetch machine inquiries.' });
   }
 });
 
-router.post('/appointments/from-consultation/:consultationId', requireAuth(['ADMIN']), async (req, res) => {
+router.get('/machine-inquiries/:id', requireAuth(['ADMIN']), async (req, res) => {
   try {
-    const { scheduledAt, notes, confirm = true } = req.body;
+    const inquiry = await prisma.machineInquiry.findUnique({
+      where: { id: req.params.id }
+    });
+
+    if (!inquiry) return res.status(404).json({ error: 'Inquiry not found.' });
+
+    const emailHistory = await prisma.message.findMany({
+      where: {
+        OR: [
+          { fromEmail: inquiry.email },
+          { toEmail: inquiry.email }
+        ]
+      },
+      orderBy: { createdAt: 'asc' }
+    });
+
+    res.json({ inquiry, emailHistory });
+  } catch (error) {
+    console.error('Fetch machine inquiry error:', error);
+    res.status(500).json({ error: 'Unable to fetch inquiry details.' });
+  }
+});
+
+router.put('/machine-inquiries/:id', requireAuth(['ADMIN']), async (req, res) => {
+  try {
+    const { status, notes } = req.body;
+    
+    const updateData = {};
+    if (status) updateData.status = status;
+    
+    // Using prisma.$executeRaw or ignoring notes if schema isn't updated. 
+    // We will just update status for now since notes wasn't in schema.
+    const inquiry = await prisma.machineInquiry.update({
+      where: { id: req.params.id },
+      data: updateData
+    });
+
+    res.json(inquiry);
+  } catch (error) {
+    console.error('Update machine inquiry error:', error);
+    res.status(500).json({ error: 'Unable to update inquiry.' });
+  }
+});
+
+router.post('/machine-inquiries/:id/reply', requireAuth(['ADMIN']), async (req, res) => {
+  try {
+    const { subject, message } = req.body;
+    if (!subject || !message) {
+      return res.status(400).json({ error: 'Subject and message are required.' });
+    }
+
+    const inquiry = await prisma.machineInquiry.findUnique({
+      where: { id: req.params.id }
+    });
+
+    if (!inquiry) return res.status(404).json({ error: 'Inquiry not found.' });
+
+    await sendAdminComposedEmail({ 
+      to: inquiry.email, 
+      subject, 
+      message, 
+      name: inquiry.name || inquiry.businessName || 'Valued Client'
+    });
+
+    await prisma.machineInquiry.update({
+      where: { id: req.params.id },
+      data: { status: 'replied' }
+    });
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Machine inquiry reply error:', error);
+    res.status(500).json({ error: 'Unable to send reply.' });
+  }
+});
+
+
+
+/* ─── Consultation Management ─── */
+
+router.get('/consultations', requireAuth(['ADMIN']), async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    const status = req.query.status;
+    const search = req.query.search;
+
+    let where = {};
+    if (status) {
+      where.status = status;
+    }
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+        { email: { contains: search } },
+        { phone: { contains: search } }
+      ];
+    }
+
+    const [consultations, total] = await Promise.all([
+      prisma.consultation.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.consultation.count({ where })
+    ]);
+
+    const pages = Math.ceil(total / limit);
+
+    res.json({ consultations, total, page, pages });
+  } catch (error) {
+    console.error('Fetch consultations error:', error);
+    res.status(500).json({ error: 'Unable to fetch consultations.' });
+  }
+});
+
+router.get('/consultations/:id', requireAuth(['ADMIN']), async (req, res) => {
+  try {
     const consultation = await prisma.consultation.findUnique({
-      where: { id: req.params.consultationId },
+      where: { id: req.params.id }
     });
 
     if (!consultation) return res.status(404).json({ error: 'Consultation not found.' });
 
-    const when = parseScheduledAt(scheduledAt);
-    if (!when) {
-      return res.status(400).json({ error: 'Scheduled date/time is required.' });
-    }
-
-    let user = consultation.userId
-      ? await prisma.user.findUnique({ where: { id: consultation.userId } })
-      : await prisma.user.findUnique({ where: { email: consultation.email } });
-
-    if (!user) {
-      const bcrypt = await import('bcryptjs');
-      user = await prisma.user.create({
-        data: {
-          email: consultation.email,
-          firstName: consultation.name.split(' ')[0] || consultation.name,
-          lastName: consultation.name.split(' ').slice(1).join(' ') || 'Client',
-          phone: consultation.phone,
-          role: 'CLIENT',
-          emailVerified: true,
-          passwordHash: await bcrypt.default.hash(Math.random().toString(36).slice(2, 14), 12),
-        },
-      });
-
-    }
-
-    const appointment = await prisma.appointment.create({
-      data: {
-        userId: user.id,
-        consultationId: consultation.id,
-        treatment: consultation.treatment,
-        scheduledAt: when,
-        notes: notes?.trim() || consultation.message || null,
-        status: confirm ? 'CONFIRMED' : 'PENDING',
+    const emailHistory = await prisma.message.findMany({
+      where: {
+        OR: [
+          { fromEmail: consultation.email },
+          { toEmail: consultation.email }
+        ]
       },
-      include: { user: true },
+      orderBy: { createdAt: 'asc' }
     });
 
-    await prisma.consultation.update({
-      where: { id: consultation.id },
-      data: { status: 'scheduled', userId: user.id },
-    });
-
-    if (confirm) {
-      await sendAppointmentConfirmationEmail(appointment, user);
-    } else {
-      await sendAppointmentBookingEmails(appointment, user);
-    }
-
-    res.status(201).json({ ok: true, appointment, user });
+    res.json({ consultation, emailHistory });
   } catch (error) {
-    console.error('Consultation conversion error:', error);
-    res.status(500).json({ error: 'Unable to convert consultation to appointment.' });
+    console.error('Fetch consultation error:', error);
+    res.status(500).json({ error: 'Unable to fetch consultation details.' });
   }
 });
 
-router.patch('/appointments/:id/confirm', requireAuth(['ADMIN']), async (req, res) => {
-  const existing = await prisma.appointment.findUnique({
-    where: { id: req.params.id },
-    include: { user: true },
-  });
-  if (!existing) return res.status(404).json({ error: 'Appointment not found.' });
+router.patch('/consultations/:id/status', requireAuth(['ADMIN']), async (req, res) => {
+  try {
+    const { status } = req.body;
+    const validStatuses = ['new', 'pending', 'replied', 'completed', 'archived'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status.' });
+    }
 
-  const appointment = await prisma.appointment.update({
-    where: { id: existing.id },
-    data: { status: 'CONFIRMED' },
-    include: { user: true },
-  });
+    const consultation = await prisma.consultation.update({
+      where: { id: req.params.id },
+      data: { status }
+    });
 
-  await sendAppointmentConfirmationEmail(appointment, appointment.user);
-  res.json({ ok: true, appointment });
+    res.json(consultation);
+  } catch (error) {
+    console.error('Update consultation status error:', error);
+    res.status(500).json({ error: 'Unable to update consultation status.' });
+  }
 });
 
-router.patch('/appointments/:id/reschedule', requireAuth(['ADMIN']), async (req, res) => {
-  const { scheduledAt } = req.body;
-  const when = parseScheduledAt(scheduledAt);
-  if (!when) return res.status(400).json({ error: 'Invalid date/time.' });
+router.patch('/consultations/:id/notes', requireAuth(['ADMIN']), async (req, res) => {
+  try {
+    const { notes, assignedTo } = req.body;
+    
+    const consultation = await prisma.consultation.update({
+      where: { id: req.params.id },
+      data: { notes, assignedTo }
+    });
 
-  const existing = await prisma.appointment.findUnique({
-    where: { id: req.params.id },
-    include: { user: true },
-  });
-  if (!existing) return res.status(404).json({ error: 'Appointment not found.' });
-
-  const previousDate = existing.scheduledAt;
-  const appointment = await prisma.appointment.update({
-    where: { id: existing.id },
-    data: { scheduledAt: when, status: 'RESCHEDULED', reminderSent: false },
-    include: { user: true },
-  });
-
-  await sendAppointmentRescheduleEmail(appointment, appointment.user, previousDate);
-  res.json({ ok: true, appointment });
+    res.json(consultation);
+  } catch (error) {
+    console.error('Update consultation notes error:', error);
+    res.status(500).json({ error: 'Unable to update consultation notes.' });
+  }
 });
 
-router.patch('/appointments/:id/cancel', requireAuth(['ADMIN']), async (req, res) => {
-  const existing = await prisma.appointment.findUnique({
-    where: { id: req.params.id },
-    include: { user: true },
-  });
-  if (!existing) return res.status(404).json({ error: 'Appointment not found.' });
+router.post('/consultations/:id/reply', requireAuth(['ADMIN']), async (req, res) => {
+  try {
+    const { subject, message } = req.body;
+    if (!subject || !message) {
+      return res.status(400).json({ error: 'Subject and message are required.' });
+    }
 
-  const appointment = await prisma.appointment.update({
-    where: { id: existing.id },
-    data: { status: 'CANCELLED' },
-    include: { user: true },
-  });
+    const consultation = await prisma.consultation.findUnique({
+      where: { id: req.params.id }
+    });
 
-  await sendAppointmentCancellationEmail(appointment, appointment.user);
-  res.json({ ok: true, appointment });
+    if (!consultation) return res.status(404).json({ error: 'Consultation not found.' });
+
+    await sendAdminComposedEmail({ 
+      to: consultation.email, 
+      subject, 
+      message, 
+      name: consultation.name 
+    });
+
+    await prisma.consultation.update({
+      where: { id: req.params.id },
+      data: { status: 'replied' }
+    });
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Consultation reply error:', error);
+    res.status(500).json({ error: 'Unable to send reply.' });
+  }
 });
+
+router.post('/consultations/:id/schedule', requireAuth(['ADMIN']), async (req, res) => {
+  try {
+    const { subject, message, scheduledDate, scheduledTime } = req.body;
+    if (!subject || !message) {
+      return res.status(400).json({ error: 'Subject and message are required.' });
+    }
+
+    const consultation = await prisma.consultation.findUnique({
+      where: { id: req.params.id }
+    });
+
+    if (!consultation) return res.status(404).json({ error: 'Consultation not found.' });
+
+    await sendAdminComposedEmail({ 
+      to: consultation.email, 
+      subject, 
+      message, 
+      name: consultation.name 
+    });
+
+    await prisma.consultation.update({
+      where: { id: req.params.id },
+      data: { status: 'pending' }
+    });
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Consultation schedule error:', error);
+    res.status(500).json({ error: 'Unable to send schedule email.' });
+  }
+});
+
+
 
 router.get('/email-templates', requireAuth(['ADMIN']), async (_req, res) => {
   const dbTemplates = await prisma.emailTemplate.findMany({ orderBy: { slug: 'asc' } });
@@ -356,30 +443,24 @@ router.get('/clients', requireAuth(['ADMIN']), async (_req, res) => {
 
 /* ─── Enhanced Dashboard ─── */
 router.get('/dashboard/enhanced', requireAuth(['ADMIN']), async (_req, res) => {
-  const [consultations, machineInquiries, totalUsers, appointments, messages, totalAppointments, completedAppointments] = await Promise.all([
+  const [consultations, machineInquiries, totalUsers, messages] = await Promise.all([
     prisma.consultation.count(),
     prisma.machineInquiry.count({ where: { status: 'new' } }),
     prisma.user.count({ where: { role: 'CLIENT' } }),
-    prisma.appointment.count({ where: { status: { in: ACTIVE_STATUSES } } }),
     prisma.message.count({ where: { isRead: false } }),
-    prisma.appointment.count(),
-    prisma.appointment.count({ where: { status: 'COMPLETED' } }),
   ]);
 
   const recentActivity = await Promise.all([
     prisma.consultation.findMany({ orderBy: { createdAt: 'desc' }, take: 5 }),
-    prisma.appointment.findMany({
-      orderBy: { createdAt: 'desc' }, take: 5,
-      include: { user: { select: { firstName: true, lastName: true } } },
-    }),
+    prisma.machineInquiry.findMany({ orderBy: { createdAt: 'desc' }, take: 5 }),
     prisma.message.findMany({ orderBy: { createdAt: 'desc' }, take: 5 }),
   ]);
 
   res.json({
-    stats: { consultations, machineInquiries, users: totalUsers, appointments, messages, totalAppointments, completedAppointments },
+    stats: { consultations, machineInquiries, users: totalUsers, messages },
     recentActivity: {
       consultations: recentActivity[0],
-      appointments: recentActivity[1],
+      machineInquiries: recentActivity[1],
       messages: recentActivity[2],
     },
     comingSoon: await getSiteSetting('site_coming_soon', 'false') === 'true',

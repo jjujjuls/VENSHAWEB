@@ -33,15 +33,22 @@ router.post('/', async (req, res) => {
       },
     });
 
-    const emailResult = await sendConsultationEmails(consultation);
+    let emailResult = { sent: false, reason: 'unknown' };
+    try {
+      emailResult = await sendConsultationEmails(consultation);
+    } catch (emailErr) {
+      console.error('Consultation email error:', emailErr.message || emailErr);
+      emailResult = { sent: false, reason: emailErr.message || 'email_error' };
+    }
 
     res.status(201).json({
       ok: true,
       id: consultation.id,
       emailSent: emailResult.sent,
+      emailError: emailResult.sent ? undefined : emailResult.reason,
     });
   } catch (error) {
-    console.error('Consultation error:', error);
+    console.error('Consultation error:', error.message || error);
     res.status(500).json({ error: 'Unable to submit consultation request.' });
   }
 });

@@ -79,74 +79,170 @@ if (reveals.length) {
   reveals.forEach((item) => observer.observe(item));
 }
 
+/* ── Scroll indicator ── */
+const scrollIndicator = document.getElementById('scrollIndicator');
+if (scrollIndicator) {
+  scrollIndicator.addEventListener('click', () => {
+    const target = document.getElementById('about') || document.getElementById('technologies');
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+/* ── Inquiry type toggling ── */
+const inquiryCards = document.querySelectorAll('.inquiry-type-card');
+const consultationFields = document.querySelectorAll('.form-group-consultation');
+const purchaseFields = document.querySelectorAll('.form-group-purchase');
+let currentInquiryType = 'consultation';
+
+function updateInquiryFields() {
+  if (currentInquiryType === 'consultation') {
+    consultationFields.forEach(el => { el.style.display = ''; el.classList.remove('hidden'); });
+    purchaseFields.forEach(el => { el.style.display = 'none'; el.classList.add('hidden'); });
+    // Make treatment required for consultation
+    const treatmentInput = document.querySelector('input[name="treatment"]');
+    if (treatmentInput) treatmentInput.required = true;
+  } else {
+    consultationFields.forEach(el => { el.style.display = 'none'; el.classList.add('hidden'); });
+    purchaseFields.forEach(el => { el.style.display = ''; el.classList.remove('hidden'); });
+    // Treatment not required for purchase
+    const treatmentInput = document.querySelector('input[name="treatment"]');
+    if (treatmentInput) treatmentInput.required = false;
+  }
+}
+
+inquiryCards.forEach(card => {
+  card.addEventListener('click', () => {
+    inquiryCards.forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    currentInquiryType = card.dataset.type;
+    updateInquiryFields();
+  });
+});
+
+// Initialize field visibility
+updateInquiryFields();
+
+/* ── Treatment chip multi-select ── */
+const treatmentChips = document.querySelectorAll('.treatment-chip');
+const treatmentInput = document.querySelector('input[name="treatment"]');
+
+treatmentChips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.classList.toggle('selected');
+    const selected = [...document.querySelectorAll('.treatment-chip.selected')].map(c => c.dataset.value);
+    if (treatmentInput) treatmentInput.value = selected.join(', ');
+  });
+});
+
+/* ── Character counter ── */
+const messageField = document.querySelector('textarea[name="message"]');
+const charCount = document.getElementById('charCount');
+if (messageField && charCount) {
+  messageField.addEventListener('input', () => {
+    charCount.textContent = messageField.value.length;
+  });
+}
+
+/* ── Form submission ── */
 if (form) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-
     const data = new FormData(form);
     const name = data.get('name')?.toString().trim() || '';
     const email = data.get('email')?.toString().trim() || '';
     const phone = data.get('phone')?.toString().trim() || '';
-    const treatment = data.get('treatment')?.toString().trim() || '';
 
-    if (!name || !email || !phone || !treatment) {
-      formMessage.textContent = 'Please complete the required fields so we can contact you.';
+    if (!name || !email || !phone) {
+      formMessage.textContent = 'Please complete the required fields.';
       formMessage.className = 'form-message error';
       return;
     }
 
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn ? submitBtn.textContent : '';
+    if (submitBtn) { submitBtn.classList.add('is-loading'); submitBtn.textContent = 'Sending…'; }
     formMessage.textContent = 'Sending your request…';
     formMessage.className = 'form-message';
 
-    const payload = {
-      name,
-      email,
-      phone,
-      treatment,
-      date: data.get('date')?.toString() || '',
-      time: data.get('time')?.toString() || '',
-      message: data.get('message')?.toString().trim() || '',
-    };
+    let endpoint, payload;
+
+    if (currentInquiryType === 'consultation') {
+      const treatment = data.get('treatment')?.toString().trim() || '';
+      if (!treatment) {
+        formMessage.textContent = 'Please select at least one treatment area.';
+        formMessage.className = 'form-message error';
+        if (submitBtn) { submitBtn.classList.remove('is-loading'); submitBtn.textContent = originalText; }
+        return;
+      }
+      endpoint = '/api/consultations';
+      payload = {
+        name, email, phone, treatment,
+        date: data.get('date')?.toString() || '',
+        time: data.get('time')?.toString() || '',
+        message: data.get('message')?.toString().trim() || '',
+      };
+    } else {
+      endpoint = '/api/machine-inquiries';
+      payload = {
+        name, email, phone,
+        companyName: data.get('companyName')?.toString().trim() || '',
+        businessName: data.get('businessName')?.toString().trim() || '',
+        businessType: data.get('businessType')?.toString().trim() || '',
+        purchaseTimeline: data.get('purchaseTimeline')?.toString().trim() || '',
+        message: data.get('message')?.toString().trim() || '',
+      };
+    }
 
     try {
       const apiBase = window.VENSHA_API || '';
-      const response = await fetch(`${apiBase}/api/consultations`, {
+      const response = await fetch(`${apiBase}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        formMessage.textContent = `Thank you, ${name}. Your consultation request has been sent. We will be in touch shortly.`;
+        const successMsg = currentInquiryType === 'consultation'
+          ? `Thank you, ${name}. Your consultation request has been sent. We will be in touch shortly.`
+          : `Thank you, ${name}. Your machine purchase inquiry has been received. A specialist will contact you shortly.`;
+        formMessage.textContent = successMsg;
         formMessage.className = 'form-message success';
+        if (submitBtn) { submitBtn.classList.remove('is-loading'); submitBtn.classList.add('is-success'); submitBtn.textContent = '✓ Request Sent'; }
         form.reset();
+        // Reset chips
+        treatmentChips.forEach(c => c.classList.remove('selected'));
+        if (treatmentInput) treatmentInput.value = '';
+        if (charCount) charCount.textContent = '0';
+        // Reset to consultation type
+        inquiryCards.forEach(c => c.classList.remove('active'));
+        document.querySelector('.inquiry-type-card[data-type="consultation"]')?.classList.add('active');
+        currentInquiryType = 'consultation';
+        updateInquiryFields();
+        setTimeout(() => { if (submitBtn) { submitBtn.classList.remove('is-success'); submitBtn.textContent = originalText; } }, 3000);
         return;
       }
-    } catch {
-      /* fall through to FormSubmit */
-    }
+    } catch { /* fall through to FormSubmit fallback */ }
 
     try {
       const fallback = new FormData();
       Object.entries(payload).forEach(([key, value]) => fallback.append(key, value));
-      fallback.append('_subject', 'New Consultation Request — VENSHASKIN');
+      fallback.append('_subject', currentInquiryType === 'consultation' ? 'New Consultation Request — VENSHASKIN' : 'New Machine Purchase Inquiry — VENSHASKIN');
       fallback.append('_template', 'table');
       fallback.append('_captcha', 'false');
-
-      const response = await fetch('https://formsubmit.co/ajax/venshaskin@gmail.com', {
-        method: 'POST',
-        body: fallback,
-        headers: { Accept: 'application/json' },
-      });
-
+      const response = await fetch('https://formsubmit.co/ajax/venshaskin@gmail.com', { method: 'POST', body: fallback, headers: { Accept: 'application/json' } });
       if (!response.ok) throw new Error('Submission failed');
-
-      formMessage.textContent = `Thank you, ${name}. Your consultation request has been sent to our team. We will be in touch shortly.`;
+      formMessage.textContent = `Thank you, ${name}. Your request has been sent. We will be in touch shortly.`;
       formMessage.className = 'form-message success';
+      if (submitBtn) { submitBtn.classList.remove('is-loading'); submitBtn.classList.add('is-success'); submitBtn.textContent = '✓ Request Sent'; }
       form.reset();
+      treatmentChips.forEach(c => c.classList.remove('selected'));
+      if (treatmentInput) treatmentInput.value = '';
+      if (charCount) charCount.textContent = '0';
+      setTimeout(() => { if (submitBtn) { submitBtn.classList.remove('is-success'); submitBtn.textContent = originalText; } }, 3000);
     } catch {
       formMessage.textContent = 'Something went wrong. Please try again or contact us at venshaskin@gmail.com.';
       formMessage.className = 'form-message error';
+      if (submitBtn) { submitBtn.classList.remove('is-loading'); submitBtn.textContent = originalText; }
     }
   });
 }
@@ -154,36 +250,200 @@ if (form) {
 /* ── Technology tabs ── */
 const techData = {
   vacuum: {
-    title: 'Negative pressure & roller',
-    desc: 'Combines vacuum negative pressure with a double-helix electric roller (15 rpm). Enhances the kneading effect of subcutaneous fat by absorbing skin tissue and promotes deeper transmission of radio frequency energy.',
+    title: 'Negative Pressure & Roller',
+    desc: 'Combines vacuum negative pressure with a double-helix electric roller for enhanced fat kneading and deeper RF energy transmission.',
     image: 'assets/images/vacuumRoller-removebg-preview.png',
+    badges: [
+      { value: '15 RPM', label: 'Roller Speed' },
+      { value: '80 KPa', label: 'Vacuum Power' },
+    ],
+    features: [
+      { title: 'Double Helix Roller', desc: '15 RPM massage' },
+      { title: 'Negative Pressure', desc: 'Improves lymphatic drainage' },
+      { title: 'RF Penetration', desc: 'Enhances thermal delivery' },
+      { title: 'Fat Kneading', desc: 'Targets stubborn fat' },
+    ],
   },
   rf: {
-    title: 'Radio frequency lifting',
-    desc: 'Accurately heats the deep layer of the epidermis to destroy aging collagen fibers and stimulate the synthesis of new collagen, effectively improving wrinkles and skin texture.',
+    title: 'Radio Frequency Lifting',
+    desc: 'Accurately heats the deep layer of the epidermis to destroy aging collagen fibers and stimulate the synthesis of new collagen.',
     image: 'assets/images/multiPolarRF-removebg-preview.png',
+    badges: [
+      { value: '1 MHz', label: 'RF Frequency' },
+      { value: 'Multi-Polar', label: 'Electrode Config' },
+    ],
+    features: [
+      { title: 'Deep Heating', desc: 'Targets epidermal layers' },
+      { title: 'Collagen Synthesis', desc: 'Stimulates new production' },
+      { title: 'Wrinkle Improvement', desc: 'Smooths fine lines' },
+      { title: 'Skin Texture', desc: 'Refines overall quality' },
+    ],
   },
   cavitation: {
-    title: 'Cavitation fat reduction',
-    desc: 'Uses 40kHz low-frequency ultrasound to support disruption of fat cells, assisting body contouring when combined with other modalities in a professional protocol.',
+    title: 'Cavitation Fat Reduction',
+    desc: 'Uses 40kHz low-frequency ultrasound to support disruption of fat cells, assisting body contouring in a professional protocol.',
     image: 'assets/images/cavitation-removebg-preview.png',
+    badges: [
+      { value: '40 kHz', label: 'Ultrasound Freq' },
+      { value: 'Low-Freq', label: 'Wave Type' },
+    ],
+    features: [
+      { title: 'Fat Disruption', desc: 'Breaks down fat cells' },
+      { title: 'Body Contouring', desc: 'Shapes target areas' },
+      { title: 'Non-Invasive', desc: 'No surgical intervention' },
+      { title: 'Deep Penetration', desc: 'Reaches subcutaneous layer' },
+    ],
   },
   infrared: {
-    title: '940nm near-infrared light',
-    desc: 'Increases blood flow by approximately 30% and activates aerobic metabolism of fat cells, preparing tissue for subsequent treatment steps.',
+    title: '940nm Near-Infrared Light',
+    desc: 'Increases blood flow by approximately 30% and activates aerobic metabolism of fat cells, preparing tissue for subsequent treatment.',
     image: 'assets/images/bipolarRF-removebg-preview.png',
+    badges: [
+      { value: '940 nm', label: 'Wavelength' },
+      { value: '12W', label: 'LED Power' },
+    ],
+    features: [
+      { title: 'Blood Flow', desc: '+30% circulation boost' },
+      { title: 'Fat Metabolism', desc: 'Activates aerobic process' },
+      { title: 'Tissue Prep', desc: 'Optimizes for treatment' },
+      { title: 'Skin Tightening', desc: 'Promotes collagen response' },
+    ],
   },
   synergy: {
-    title: 'Full-dimensional synergy',
-    desc: 'Deep fat reduction (ultrasound cavitation) → superficial metabolism (near-infrared light) → skin tightening (radio frequency) → circulation optimization (vacuum roller). Improves fat reduction efficiency and skin texture simultaneously.',
-    image: 'assets/images/fullDimensionalEffect.png',
+    title: 'Full-Dimensional Synergy',
+    desc: 'All five technologies work together: deep fat reduction, superficial metabolism, skin tightening, and circulation optimization.',
+    image: 'assets/images/synergy-infographic.jpg',
+    badges: [
+      { value: '5-in-1', label: 'Technology' },
+      { value: '800W', label: 'Maximum Output' },
+    ],
+    features: [
+      { title: 'Fat Reduction', desc: 'Ultrasound cavitation' },
+      { title: 'Metabolism Boost', desc: 'Near-infrared light' },
+      { title: 'Skin Tightening', desc: 'Radio frequency' },
+      { title: 'Circulation', desc: 'Vacuum roller optimization' },
+    ],
   },
 };
+
+/* ── Applicator card click handlers ── */
+const applicatorCards = document.querySelectorAll('.applicator-card');
+
+applicatorCards.forEach((card) => {
+  card.addEventListener('click', (e) => {
+    // Check if the click was on a link or button inside the card
+    const target = e.target;
+    if (target.closest('a') || target.closest('button')) {
+      return; // Let the link/button handle the click
+    }
+    
+    const techTarget = card.dataset.techTarget;
+    if (!techTarget) return;
+    
+    // Navigate to the technologies section
+    const techSection = document.getElementById('technologies');
+    if (techSection) {
+      // Activate the corresponding tech tab
+      techTabs.forEach((t) => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      
+      const targetTab = document.querySelector(`.tech-tab[data-tech="${techTarget}"]`);
+      if (targetTab) {
+        targetTab.classList.add('active');
+        targetTab.setAttribute('aria-selected', 'true');
+        
+        // Update tech content
+        updateTechContent(techTarget);
+        
+        // Scroll to the technologies section
+        techSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  });
+});
 
 const techTabs = document.querySelectorAll('.tech-tab');
 const techTitle = document.getElementById('techTitle');
 const techDesc = document.getElementById('techDesc');
 const techImage = document.getElementById('techImage');
+const techBadges = document.getElementById('techBadges');
+const techFeatures = document.getElementById('techFeatures');
+const techContent = document.getElementById('techContent');
+
+function updateTechContent(key) {
+  const data = techData[key];
+  if (!data) return;
+
+  // Trigger animation
+  if (techContent) {
+    techContent.classList.remove('is-animating');
+    void techContent.offsetWidth; // force reflow
+    techContent.classList.add('is-animating');
+  }
+
+  const visualWrap = document.querySelector('.tech-visual-wrap');
+  if (visualWrap) {
+    visualWrap.classList.remove('is-animating');
+    void visualWrap.offsetWidth;
+    visualWrap.classList.add('is-animating');
+  }
+
+  // Update title & description
+  if (techTitle) techTitle.textContent = data.title;
+  if (techDesc) techDesc.textContent = data.desc;
+  if (techImage) {
+    techImage.src = data.image;
+    techImage.alt = data.title;
+  }
+
+  // Update badges
+  if (techBadges && data.badges) {
+    techBadges.innerHTML = data.badges
+      .map(
+        (b) => `
+      <div class="tech-badge">
+        <span class="tech-badge-value">${b.value}</span>
+        <span class="tech-badge-label">${b.label}</span>
+      </div>`
+      )
+      .join('');
+  }
+
+  // Update features
+  if (techFeatures && data.features) {
+    techFeatures.innerHTML = data.features
+      .map(
+        (f) => `
+      <div class="tech-feature">
+        <span class="tech-feature-check">✓</span>
+        <div>
+          <strong>${f.title}</strong>
+          <span>${f.desc}</span>
+        </div>
+      </div>`
+      )
+      .join('');
+  }
+
+  // Show original collage image below main image for synergy tab
+  const visualWrapEl = document.querySelector('.tech-visual-wrap');
+  if (visualWrapEl) {
+    const existingCollage = visualWrapEl.querySelector('.synergy-collage');
+    if (existingCollage) existingCollage.remove();
+
+    if (key === 'synergy') {
+      const collageImg = document.createElement('img');
+      collageImg.src = 'assets/images/fullDimensionalEffect.png';
+      collageImg.alt = 'Five technologies working together';
+      collageImg.className = 'synergy-collage';
+      collageImg.style.cssText = 'position:relative;z-index:1;width:100%;max-height:220px;object-fit:contain;margin-top:16px;border-radius:12px;opacity:0;transition:opacity 0.5s ease;';
+      visualWrapEl.appendChild(collageImg);
+      requestAnimationFrame(() => { collageImg.style.opacity = '1'; });
+    }
+  }
+}
 
 techTabs.forEach((tab) => {
   tab.addEventListener('click', () => {
@@ -194,15 +454,7 @@ techTabs.forEach((tab) => {
     tab.classList.add('active');
     tab.setAttribute('aria-selected', 'true');
 
-    const data = techData[tab.dataset.tech];
-    if (data && techTitle && techDesc) {
-      techTitle.textContent = data.title;
-      techDesc.textContent = data.desc;
-      if (techImage && data.image) {
-        techImage.src = data.image;
-        techImage.alt = data.title;
-      }
-    }
+    updateTechContent(tab.dataset.tech);
   });
 });
 
@@ -235,19 +487,61 @@ function highlightSegment(id) {
   }
 }
 
-segments.forEach((seg, i) => {
-  const el = donutSegments[i];
-  if (!el) return;
+/* ── Donut chart: start hidden, animate on scroll ── */
+const donutChartSection = document.getElementById('results');
+let donutAnimated = false;
 
-  const dash = (seg.value / 100) * circumference;
-  el.setAttribute('stroke-dasharray', `${dash} ${circumference - dash}`);
-  el.setAttribute('stroke-dashoffset', `-${offset}`);
-  el.setAttribute('stroke', seg.color);
-  offset += dash;
-
-  el.addEventListener('mouseenter', () => highlightSegment(seg.id));
-  el.addEventListener('click', () => highlightSegment(seg.id));
+// Initially hide segments (0 dasharray)
+donutSegments.forEach((el) => {
+  el.setAttribute('stroke-dasharray', '0 ' + circumference);
 });
+
+function animateDonut() {
+  if (donutAnimated) return;
+  donutAnimated = true;
+  let currentOffset = 0;
+
+  segments.forEach((seg, i) => {
+    const el = donutSegments[i];
+    if (!el) return;
+
+    const dash = (seg.value / 100) * circumference;
+    el.setAttribute('stroke', seg.color);
+
+    // Animate after a staggered delay
+    setTimeout(() => {
+      el.style.transition = 'stroke-dasharray 1s cubic-bezier(0.22, 1, 0.36, 1)';
+      el.setAttribute('stroke-dasharray', `${dash} ${circumference - dash}`);
+      el.setAttribute('stroke-dashoffset', `-${currentOffset}`);
+    }, i * 200);
+
+    currentOffset += dash;
+
+    el.addEventListener('mouseenter', () => highlightSegment(seg.id));
+    el.addEventListener('click', () => highlightSegment(seg.id));
+  });
+
+  // Animate center number
+  if (donutCenter) {
+    animateCounter(donutCenter, 0, 68, 1000, '%');
+  }
+}
+
+// Observe the results section
+if (donutChartSection) {
+  const donutObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateDonut();
+          donutObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.2 }
+  );
+  donutObserver.observe(donutChartSection);
+}
 
 chartLegend?.querySelectorAll('li').forEach((li) => {
   li.addEventListener('mouseenter', () => highlightSegment(li.dataset.segment));
@@ -256,12 +550,63 @@ chartLegend?.querySelectorAll('li').forEach((li) => {
 
 highlightSegment('68');
 
+/* ── Animated counter utility ── */
+function animateCounter(el, start, end, duration, suffix = '') {
+  if (!el) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) {
+    el.textContent = end + suffix;
+    return;
+  }
+
+  const startTime = performance.now();
+  function update(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // Ease out cubic
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(start + (end - start) * eased);
+    el.textContent = current + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+/* ── Animate all stat values on scroll ── */
+function animateStats() {
+  const statValues = document.querySelectorAll('.stat-value');
+  statValues.forEach((el) => {
+    if (el.dataset.counted) return;
+    const text = el.textContent.trim();
+    const match = text.match(/^(\d+)(%?)$/);
+    if (match) {
+      el.dataset.counted = 'true';
+      animateCounter(el, 0, parseInt(match[1]), 1200, match[2] || '');
+    }
+  });
+}
+
+if (donutChartSection) {
+  const statsObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateStats();
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.2 }
+  );
+  statsObserver.observe(donutChartSection);
+}
+
 /* ── Body map hotspots ── */
 const hotspotData = {
-  firm: { value: '+82%', label: 'Firm Skin' },
-  waist: { value: '−3cm', label: 'Waist Circumference' },
-  hip: { value: '−3cm', label: 'Hip Circumference' },
-  cellulite: { value: '−85%', label: 'Cellulite' },
+  firm: { value: '+82%', label: 'Firm Skin', detail: 'Collagen stimulation · 2–3 sessions' },
+  waist: { value: '−3cm', label: 'Waist Circumference', detail: 'Fat reduction · 4–6 sessions' },
+  hip: { value: '−3cm', label: 'Hip Circumference', detail: 'Body contouring · 4–6 sessions' },
+  cellulite: { value: '−85%', label: 'Cellulite', detail: 'Skin smoothing · 6–8 sessions' },
 };
 
 const hotspots = document.querySelectorAll('.hotspot');
@@ -283,3 +628,37 @@ hotspots.forEach((spot) => {
 });
 
 showHotspot('firm');
+
+/* ── Before/After image slider ── */
+document.querySelectorAll('.ba-slider').forEach((slider) => {
+  const handle = slider.querySelector('.ba-handle');
+  const afterWrap = slider.querySelector('.ba-after');
+  if (!handle || !afterWrap) return;
+
+  let isDragging = false;
+
+  function setPosition(x) {
+    const rect = slider.getBoundingClientRect();
+    let pct = ((x - rect.left) / rect.width) * 100;
+    pct = Math.max(5, Math.min(95, pct));
+    afterWrap.style.clipPath = `inset(0 0 0 ${pct}%)`;
+    handle.style.left = pct + '%';
+  }
+
+  handle.addEventListener('mousedown', () => { isDragging = true; });
+  handle.addEventListener('touchstart', () => { isDragging = true; }, { passive: true });
+
+  window.addEventListener('mousemove', (e) => {
+    if (isDragging) { e.preventDefault(); setPosition(e.clientX); }
+  });
+  window.addEventListener('touchmove', (e) => {
+    if (isDragging) setPosition(e.touches[0].clientX);
+  }, { passive: true });
+
+  window.addEventListener('mouseup', () => { isDragging = false; });
+  window.addEventListener('touchend', () => { isDragging = false; });
+
+  // Click to set position
+  slider.addEventListener('click', (e) => setPosition(e.clientX));
+});
+

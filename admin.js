@@ -453,6 +453,21 @@ async function renderDashboard() {
     const data = await api('/api/admin/dashboard/enhanced');
     const { stats, recentActivity } = data;
 
+    // Combine consultations + machine inquiries into a unified list
+    const allInquiries = [];
+    if (recentActivity.consultations) {
+      recentActivity.consultations.forEach(c => {
+        allInquiries.push({ type: 'Consultation', name: c.name, status: c.status, date: c.createdAt, treatment: c.treatment });
+      });
+    }
+    if (recentActivity.machineInquiries) {
+      recentActivity.machineInquiries.forEach(m => {
+        allInquiries.push({ type: 'Purchase', name: m.name || m.businessName || '—', status: m.status, date: m.createdAt });
+      });
+    }
+    // Sort by date descending
+    allInquiries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     container.innerHTML = `
       <div class="toggle-row">
         <div>
@@ -464,25 +479,29 @@ async function renderDashboard() {
 
       <div class="stats-grid">
         <div class="stat-card gold"><div class="num">${stats.consultations}</div><div class="lbl">Consultations</div></div>
-        <div class="stat-card gold"><div class="num">${stats.appointments}</div><div class="lbl">Active Appointments</div></div>
-        <div class="stat-card gold"><div class="num">${stats.completedAppointments}</div><div class="lbl">Completed</div></div>
+        <div class="stat-card gold"><div class="num">${stats.machineInquiries}</div><div class="lbl">Machine Inquiries</div></div>
         <div class="stat-card gold"><div class="num">${stats.users}</div><div class="lbl">Clients</div></div>
-        <div class="stat-card gold"><div class="num">${stats.machineInquiries}</div><div class="lbl">New Inquiries</div></div>
         <div class="stat-card gold"><div class="num">${stats.messages}</div><div class="lbl">Unread Messages</div></div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="display:grid;grid-template-columns:1fr;gap:16px;">
         <div class="data-table-wrap">
-          <div class="table-toolbar"><strong>Recent Consultations</strong></div>
-          ${recentActivity.consultations.length ? `<table class="data-table"><tbody>
-            ${recentActivity.consultations.map(c => `<tr><td>${c.name}</td><td>${c.treatment}</td><td>${statusBadge(c.status)}</td><td>${fmtDateShort(c.createdAt)}</td></tr>`).join('')}
-          </tbody></table>` : '<div class="empty-state"><p>No consultations yet.</p></div>'}
-        </div>
-        <div class="data-table-wrap">
-          <div class="table-toolbar"><strong>Recent Appointments</strong></div>
-          ${recentActivity.appointments.length ? `<table class="data-table"><tbody>
-            ${recentActivity.appointments.map(a => `<tr><td>${a.user?.firstName || '—'} ${a.user?.lastName || ''}</td><td>${a.treatment}</td><td>${statusBadge(a.status)}</td><td>${fmtDateShort(a.scheduledAt)}</td></tr>`).join('')}
-          </tbody></table>` : '<div class="empty-state"><p>No appointments yet.</p></div>'}
+          <div class="table-toolbar"><strong>All Inquiries</strong></div>
+          ${allInquiries.length ? `<table class="data-table">
+            <thead><tr>
+              <th>Type</th>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr></thead>
+            <tbody>
+            ${allInquiries.slice(0, 10).map(i => `<tr>
+              <td><span class="type-badge type-${i.type.toLowerCase()}">${i.type}</span></td>
+              <td><strong>${i.name}</strong></td>
+              <td>${statusBadge(i.status)}</td>
+              <td>${fmtDateShort(i.date)}</td>
+            </tr>`).join('')}
+          </tbody></table>` : '<div class="empty-state"><p>No inquiries yet.</p></div>'}
         </div>
       </div>`;
 
@@ -502,86 +521,198 @@ async function renderDashboard() {
   }
 }
 
-/* ─── 2. Appointments ─── */
-function renderAppointments() {
-  createCrudManager({
-    container: document.getElementById('tab-appointments'),
-    title: 'Appointments',
-    description: 'Manage all client appointments — confirm, reschedule, or cancel.',
-    apiBase: '/api/admin/appointments',
-    searchable: true,
-    pageSize: 25,
-    columns: [
-      { key: 'client', label: 'Client', render: (a) => `${a.user?.firstName || '—'} ${a.user?.lastName || ''}<br><small style="color:#888;">${a.user?.email || ''}</small>` },
-      { key: 'treatment', label: 'Treatment' },
-      { key: 'scheduledAt', label: 'Scheduled', render: (a) => fmtDate(a.scheduledAt) },
-      { key: 'status', label: 'Status', render: (a) => statusBadge(a.status) },
-    ],
-    onTransform: (data) => data.appointments || [],
-    rowActions: [
-      {
-        label: 'Confirm', class: 'btn-sm',
-        action: async (item, reload) => {
-          if (item.status === 'PENDING') {
-            try {
-              await api(`/api/admin/appointments/${item.id}/confirm`, { method: 'PATCH' });
-              showToast('Appointment confirmed.', 'success');
-              reload();
-            } catch (err) { showToast(err.message, 'error'); }
-          }
-        },
-      },
-      {
-        label: 'Reschedule', class: 'btn-sm',
-        action: (item, reload) => {
-          const modal = openModal({
-            title: 'Reschedule Appointment',
-            body: `
-              <form class="form-grid" data-form>
-                <div class="form-group full">
-                  <label>New Date &amp; Time</label>
-                  <input type="datetime-local" id="resched-date" required />
-                </div>
-                <div class="form-actions full">
-                  <button type="button" class="btn" data-cancel>Cancel</button>
-                  <button type="submit" class="btn btn-primary">Update</button>
-                </div>
-              </form>`,
-          });
-          modal.querySelector('[data-cancel]').addEventListener('click', closeModal);
-          modal.querySelector('[data-form]').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const dt = modal.querySelector('#resched-date').value;
-            if (!dt) return;
-            try {
-              await api(`/api/admin/appointments/${item.id}/reschedule`, { method: 'PATCH', body: { scheduledAt: dt } });
-              showToast('Rescheduled successfully.', 'success');
-              closeModal();
-              reload();
-            } catch (err) { showToast(err.message, 'error'); }
-          });
-        },
-      },
-      {
-        label: 'Cancel', class: 'btn-sm btn-danger',
-        action: async (item, reload) => {
-          const ok = await confirmDialog('Cancel this appointment? The client will be notified.');
-          if (!ok) return;
-          try {
-            await api(`/api/admin/appointments/${item.id}/cancel`, { method: 'PATCH' });
-            showToast('Appointment cancelled.', 'success');
-            reload();
-          } catch (err) { showToast(err.message, 'error'); }
-        },
-      },
-    ],
-    formFields: [
-      { key: 'userId', label: 'Client ID', type: 'text', required: true, placeholder: 'User ID' },
-      { key: 'treatment', label: 'Treatment', type: 'text', required: true },
-      { key: 'scheduledAt', label: 'Scheduled Date & Time', type: 'datetime-local', required: true },
-      { key: 'notes', label: 'Notes', type: 'textarea', placeholder: 'Optional notes' },
-      { key: 'confirm', label: 'Confirm immediately', type: 'checkbox', default: true },
-    ],
+/* ═══ Machine Inquiries ═══ */
+let miStatusFilter = 'all';
+let miSearchQuery = '';
+
+function renderMachineInquiries() {
+  const tab = document.getElementById('tab-machine-inquiries');
+  if (!tab) return;
+  
+  const filters = tab.querySelectorAll('.filter-tab');
+  filters.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      filters.forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      miStatusFilter = e.target.dataset.miStatus;
+      loadMachineInquiries();
+    });
+  });
+
+  const searchInput = tab.querySelector('#miSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      miSearchQuery = e.target.value.toLowerCase();
+      loadMachineInquiries();
+    });
+  }
+
+  loadMachineInquiries();
+}
+
+async function loadMachineInquiries() {
+  const container = document.getElementById('machineInquiriesList');
+  const detail = document.getElementById('machineInquiryDetail');
+  if (!container) return;
+  detail.style.display = 'none';
+  container.style.display = 'block';
+
+  try {
+    let url = '/api/admin/machine-inquiries';
+    if (miStatusFilter !== 'all') url += `?status=${miStatusFilter}`;
+    const data = await api(url);
+    const inquiries = data.inquiries || data;
+    
+    const filtered = miSearchQuery
+      ? inquiries.filter(i => 
+          (i.name || '').toLowerCase().includes(miSearchQuery) ||
+          (i.businessName || '').toLowerCase().includes(miSearchQuery) ||
+          (i.email || '').toLowerCase().includes(miSearchQuery)
+        )
+      : inquiries;
+
+    if (!filtered.length) {
+      container.innerHTML = '<div class="empty-state"><p>No machine inquiries found.</p></div>';
+      return;
+    }
+
+    container.innerHTML = `<table class="data-table">
+      <thead><tr>
+        <th>Status</th>
+        <th>Contact</th>
+        <th>Business</th>
+        <th>Timeline</th>
+        <th>Submitted</th>
+        <th>Actions</th>
+      </tr></thead>
+      <tbody>${filtered.map(i => `<tr class="${i.status === 'new' ? 'row-unread' : ''}">
+        <td>${statusBadge(i.status)}</td>
+        <td><strong>${i.name || '—'}</strong><br><small class="text-muted">${i.email}</small></td>
+        <td>${i.businessName || i.companyName || '—'}</td>
+        <td>${i.purchaseTimeline || '—'}</td>
+        <td>${timeAgo(i.createdAt)}</td>
+        <td><button class="btn-sm" data-view-mi="${i.id}">View</button></td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+
+    container.querySelectorAll('[data-view-mi]').forEach(btn => {
+      btn.addEventListener('click', () => loadMachineInquiryDetail(btn.dataset.viewMi));
+    });
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state"><p>Failed to load inquiries.</p></div>';
+  }
+}
+
+async function loadMachineInquiryDetail(id) {
+  const container = document.getElementById('machineInquiriesList');
+  const detail = document.getElementById('machineInquiryDetail');
+  
+  try {
+    const data = await api(`/api/admin/machine-inquiries/${id}`);
+    const inquiry = data.inquiry || data;
+    const emailHistory = data.emailHistory || [];
+    container.style.display = 'none';
+    detail.style.display = 'block';
+    
+    detail.innerHTML = `
+      <div class="detail-header">
+        <button class="btn-back" onclick="loadMachineInquiries()">← Back to Inquiries</button>
+        <div class="detail-actions">
+          <select class="status-select" data-mi-id="${inquiry.id}">
+            <option value="new" ${inquiry.status === 'new' ? 'selected' : ''}>New</option>
+            <option value="pending" ${inquiry.status === 'pending' ? 'selected' : ''}>Pending</option>
+            <option value="replied" ${inquiry.status === 'replied' ? 'selected' : ''}>Replied</option>
+            <option value="completed" ${inquiry.status === 'completed' ? 'selected' : ''}>Completed</option>
+            <option value="archived" ${inquiry.status === 'archived' ? 'selected' : ''}>Archived</option>
+          </select>
+          <button class="btn btn-primary" data-action="reply-mi">✉ Reply to Client</button>
+        </div>
+      </div>
+      
+      <div class="detail-body">
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <h3>Contact Information</h3>
+            ${statusBadge(inquiry.status)}
+          </div>
+          <div class="detail-grid">
+            <div class="detail-item"><label>Name</label><p>${inquiry.name || '—'}</p></div>
+            <div class="detail-item"><label>Email</label><p><a href="mailto:${inquiry.email}">${inquiry.email}</a></p></div>
+            <div class="detail-item"><label>Phone</label><p><a href="tel:${inquiry.phone}">${inquiry.phone || '—'}</a></p></div>
+            <div class="detail-item"><label>Company</label><p>${inquiry.companyName || '—'}</p></div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <h3>Business Details</h3>
+          <div class="detail-grid">
+            <div class="detail-item"><label>Business Name</label><p>${inquiry.businessName || '—'}</p></div>
+            <div class="detail-item"><label>Business Type</label><p>${inquiry.businessType || '—'}</p></div>
+            <div class="detail-item"><label>Machine Model</label><p>${inquiry.machineModel || 'Megashape Pro'}</p></div>
+            <div class="detail-item"><label>Purchase Timeline</label><p>${inquiry.purchaseTimeline || '—'}</p></div>
+          </div>
+        </div>
+
+        ${inquiry.message ? `<div class="detail-card">
+          <h3>Client Message</h3>
+          <div class="detail-message-box">${inquiry.message}</div>
+        </div>` : ''}
+
+        ${emailHistory.length ? `<div class="detail-card">
+          <h3>Email History</h3>
+          <div class="email-thread">${emailHistory.map(e => `
+            <div class="email-item ${e.fromEmail === inquiry.email ? 'incoming' : 'outgoing'}">
+              <div class="email-meta">
+                <strong>${e.fromEmail === inquiry.email ? inquiry.name || 'Client' : 'VENSHA SKIN'}</strong>
+                <span>${fmtDateShort(e.createdAt)}</span>
+              </div>
+              <div class="email-subject">${e.subject}</div>
+              <div class="email-body">${e.body}</div>
+            </div>
+          `).join('')}</div>
+        </div>` : ''}
+
+        <div class="detail-meta">
+          Submitted ${fmtDateShort(inquiry.createdAt)} · Last updated ${fmtDateShort(inquiry.updatedAt)}
+        </div>
+      </div>
+    `;
+
+    // Status change handler
+    detail.querySelector('.status-select').addEventListener('change', async (e) => {
+      try {
+        await api(`/api/admin/machine-inquiries/${inquiry.id}`, {
+          method: 'PUT',
+          body: { status: e.target.value },
+        });
+        showToast('Status updated', 'success');
+      } catch (err) {
+        showToast('Failed to update status', 'error');
+      }
+    });
+
+    // Reply button
+    detail.querySelector('[data-action="reply-mi"]').addEventListener('click', () => {
+      openMachineReplyModal(inquiry);
+    });
+  } catch (err) {
+    detail.innerHTML = '<div class="empty-state"><p>Failed to load inquiry details.</p></div>';
+  }
+}
+
+function openMachineReplyModal(inquiry) {
+  const name = inquiry.name || 'Valued Client';
+  const defaultSubject = 'Thank You for Your Interest in Megashape Pro';
+  const defaultMessage = `Hello ${name},\n\nThank you for your interest in the Megashape Pro.\n\nOne of our specialists will contact you shortly regarding pricing, demonstrations, financing options, and availability.\n\nThank you,\nVENSHA SKIN`;
+  
+  openReplyModalGeneric({
+    id: inquiry.id,
+    name: name,
+    email: inquiry.email,
+    subject: defaultSubject,
+    message: defaultMessage,
+    endpoint: `/api/admin/machine-inquiries/${inquiry.id}/reply`,
+    onSuccess: () => loadMachineInquiryDetail(inquiry.id),
   });
 }
 
@@ -1597,14 +1728,451 @@ function renderEmailTemplates() {
   load();
 }
 
+/* ─── Consultations ─── */
+function renderConsultations() {
+  const container = document.getElementById('tab-consultations');
+  let currentView = 'list';
+  let currentFilter = 'all';
+  let searchQuery = '';
+  let consultations = [];
+
+  function timeAgo(dateStr) {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const seconds = Math.floor((now - date) / 1000);
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} min${minutes > 1 ? 's' : ''} ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    const days = Math.floor(hours / 24);
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days} days ago`;
+    return fmtDateShort(dateStr);
+  }
+
+  async function loadList() {
+    currentView = 'list';
+    try {
+      const params = new URLSearchParams();
+      if (currentFilter !== 'all') params.set('status', currentFilter);
+      if (searchQuery) params.set('search', searchQuery);
+      params.set('limit', '50');
+
+      const data = await api(`/api/admin/consultations?${params}`);
+      consultations = data.consultations || [];
+      renderList();
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><p style="color:var(--danger)">${err.message}</p></div>`;
+    }
+  }
+
+  function renderList() {
+    const filters = [
+      { label: 'All', value: 'all' },
+      { label: 'New', value: 'new' },
+      { label: 'Pending', value: 'pending' },
+      { label: 'Replied', value: 'replied' },
+      { label: 'Completed', value: 'completed' },
+      { label: 'Archived', value: 'archived' },
+    ];
+
+    const filtered = currentFilter === 'all'
+      ? consultations
+      : consultations.filter(c => c.status === currentFilter);
+
+    container.innerHTML = `
+      <div class="section-header">
+        <div>
+          <h2>Consultation Requests</h2>
+          <p>${consultations.length} total requests</p>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        ${filters.map(f => `
+          <button class="filter-btn ${currentFilter === f.value ? 'active' : ''}" data-filter="${f.value}">${f.label}</button>
+        `).join('')}
+      </div>
+
+      <div class="data-table-wrap">
+        <div class="table-toolbar">
+          <input class="search-input" type="text" placeholder="Search by name, email, or phone..." value="${searchQuery}" data-search />
+          <div class="toolbar-actions">
+            <span class="text-sm text-muted">${filtered.length} result${filtered.length !== 1 ? 's' : ''}</span>
+          </div>
+        </div>
+        ${filtered.length ? `
+        <table class="data-table">
+          <thead><tr>
+            <th>Status</th>
+            <th>Client</th>
+            <th>Treatment</th>
+            <th>Preferred Date</th>
+            <th>Submitted</th>
+            <th style="width:80px">Actions</th>
+          </tr></thead>
+          <tbody>
+            ${filtered.map(c => `
+              <tr>
+                <td>${statusBadge(c.status)}</td>
+                <td>
+                  <strong>${c.name}</strong><br>
+                  <small style="color:var(--muted);">${c.email}</small>
+                </td>
+                <td>${c.treatment}</td>
+                <td>${c.preferredDate || '—'}</td>
+                <td><span class="time-ago">${timeAgo(c.createdAt)}</span></td>
+                <td><button class="btn btn-sm btn-ghost" data-view="${c.id}">View</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>` : `
+        <div class="empty-state">
+          <div class="empty-icon">&#128203;</div>
+          <h3>${searchQuery ? 'No results found' : 'No consultation requests'}</h3>
+          <p>${searchQuery ? 'Try a different search term.' : 'New consultation requests will appear here.'}</p>
+        </div>`}
+      </div>`;
+
+    /* Bind events */
+    container.querySelectorAll('[data-filter]').forEach(el => {
+      el.addEventListener('click', () => {
+        currentFilter = el.dataset.filter;
+        renderList();
+      });
+    });
+
+    let searchTimer;
+    container.querySelector('[data-search]')?.addEventListener('input', (e) => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        searchQuery = e.target.value;
+        loadList();
+      }, 300);
+    });
+
+    container.querySelectorAll('[data-view]').forEach(el => {
+      el.addEventListener('click', () => loadDetail(el.dataset.view));
+    });
+  }
+
+  async function loadDetail(id) {
+    currentView = 'detail';
+    container.innerHTML = '<div class="loading">Loading consultation...</div>';
+
+    try {
+      const data = await api(`/api/admin/consultations/${id}`);
+      const c = data.consultation;
+      const emails = data.emailHistory || [];
+
+      container.innerHTML = `
+        <button class="back-btn" data-back>&#8592; Back to Consultations</button>
+
+        <div class="section-header">
+          <div>
+            <h2>Consultation Request</h2>
+            <p>Submitted ${timeAgo(c.createdAt)} &mdash; ${fmtDate(c.createdAt)}</p>
+          </div>
+        </div>
+
+        <div class="consultation-detail">
+          <div class="consultation-main">
+
+            <!-- Client Information -->
+            <div class="detail-card">
+              <div class="detail-card-header">Client Information</div>
+              <div class="detail-card-body">
+                <div class="detail-field">
+                  <span class="field-label">Name</span>
+                  <span class="field-value">${c.name}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Email</span>
+                  <span class="field-value"><a href="mailto:${c.email}" style="color:var(--gold);text-decoration:none;">${c.email}</a></span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Phone</span>
+                  <span class="field-value"><a href="tel:${c.phone}" style="color:var(--gold);text-decoration:none;">${c.phone}</a></span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Preferred Treatment</span>
+                  <span class="field-value"><strong>${c.treatment}</strong></span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Preferred Date</span>
+                  <span class="field-value">${c.preferredDate || 'Not specified'}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Preferred Time</span>
+                  <span class="field-value">${c.preferredTime || 'Not specified'}</span>
+                </div>
+                ${c.message ? `
+                <div class="detail-field">
+                  <span class="field-label">Message</span>
+                  <span class="field-value message-text">${c.message}</span>
+                </div>` : ''}
+              </div>
+            </div>
+
+            <!-- Internal Notes -->
+            <div class="detail-card">
+              <div class="detail-card-header">Internal Notes</div>
+              <div class="detail-card-body">
+                <div class="form-group">
+                  <label>Status</label>
+                  <select id="consult-status">
+                    ${['new','pending','replied','completed','archived'].map(s =>
+                      `<option value="${s}" ${c.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
+                    ).join('')}
+                  </select>
+                </div>
+                <div class="form-group" style="margin-top:12px;">
+                  <label>Assigned Staff</label>
+                  <input type="text" id="consult-assigned" value="${c.assignedTo || ''}" placeholder="e.g. Administrator" />
+                </div>
+                <div class="form-group" style="margin-top:12px;">
+                  <label>Notes <span style="font-weight:400;text-transform:none;letter-spacing:0;">(Internal only)</span></label>
+                  <textarea id="consult-notes" rows="4" placeholder="Add internal notes about this consultation...">${c.notes || ''}</textarea>
+                </div>
+                <div style="margin-top:14px;">
+                  <button class="btn btn-primary" id="saveNotesBtn">Save Notes</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Email History -->
+            <div class="detail-card">
+              <div class="detail-card-header">Email History</div>
+              <div class="detail-card-body">
+                ${emails.length ? `
+                <ul class="email-timeline">
+                  ${emails.map(e => {
+                    const isOutgoing = e.fromEmail !== c.email;
+                    const icon = isOutgoing ? '&#9993;' : '&#8617;';
+                    const label = isOutgoing ? 'Sent' : 'Received';
+                    return `
+                    <li class="email-timeline-item">
+                      <div class="timeline-icon ${isOutgoing ? 'outgoing' : ''}">${icon}</div>
+                      <div class="timeline-content">
+                        <div class="timeline-subject">&#10003; ${e.subject}</div>
+                        <div class="timeline-meta">${label} &mdash; ${fmtDate(e.createdAt)}</div>
+                      </div>
+                    </li>`;
+                  }).join('')}
+                </ul>` : `
+                <p style="color:var(--muted);font-size:0.82rem;text-align:center;padding:16px 0;">No email history yet.</p>`}
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar Actions -->
+          <div class="consultation-sidebar">
+            <div class="detail-card">
+              <div class="detail-card-header">Actions</div>
+              <div class="detail-card-body">
+                <div class="action-buttons">
+                  <button class="btn btn-primary" data-action="reply">&#9993; Reply to Client</button>
+                  <button class="btn btn-info" data-action="schedule">&#128197; Schedule Consultation</button>
+                  <button class="btn btn-warning" data-action="status-pending">Mark as Pending</button>
+                  <button class="btn btn-success" data-action="status-completed">&#10003; Mark as Completed</button>
+                  <button class="btn btn-archive" data-action="status-archived">&#128451; Archive Request</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Info -->
+            <div class="detail-card">
+              <div class="detail-card-header">Quick Info</div>
+              <div class="detail-card-body">
+                <div class="detail-field">
+                  <span class="field-label">Request ID</span>
+                  <span class="field-value" style="font-family:monospace;font-size:0.72rem;color:var(--muted);">${c.id}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Created</span>
+                  <span class="field-value">${fmtDate(c.createdAt)}</span>
+                </div>
+                ${c.updatedAt ? `
+                <div class="detail-field">
+                  <span class="field-label">Last Updated</span>
+                  <span class="field-value">${fmtDate(c.updatedAt)}</span>
+                </div>` : ''}
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      /* Bind detail events */
+      container.querySelector('[data-back]').addEventListener('click', () => loadList());
+
+      /* Save notes */
+      container.querySelector('#saveNotesBtn').addEventListener('click', async () => {
+        const status = container.querySelector('#consult-status').value;
+        const assignedTo = container.querySelector('#consult-assigned').value;
+        const notes = container.querySelector('#consult-notes').value;
+
+        try {
+          await api(`/api/admin/consultations/${id}/notes`, {
+            method: 'PATCH',
+            body: { notes, assignedTo },
+          });
+          await api(`/api/admin/consultations/${id}/status`, {
+            method: 'PATCH',
+            body: { status },
+          });
+          showToast('Notes saved successfully.', 'success');
+          loadDetail(id);
+        } catch (err) { showToast(err.message, 'error'); }
+      });
+
+      /* Status actions */
+      container.querySelectorAll('[data-action]').forEach(el => {
+        el.addEventListener('click', async () => {
+          const action = el.dataset.action;
+
+          if (action === 'reply') {
+            openReplyModal(c, id);
+          } else if (action === 'schedule') {
+            openScheduleModal(c, id);
+          } else if (action.startsWith('status-')) {
+            const newStatus = action.replace('status-', '');
+            try {
+              await api(`/api/admin/consultations/${id}/status`, {
+                method: 'PATCH',
+                body: { status: newStatus },
+              });
+              showToast(`Status updated to ${newStatus}.`, 'success');
+              loadDetail(id);
+            } catch (err) { showToast(err.message, 'error'); }
+          }
+        });
+      });
+
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><p style="color:var(--danger)">${err.message}</p></div>`;
+    }
+  }
+
+  function openReplyModal(c, id) {
+    const defaultMessage = `Subject: Your VENSHA SKIN Consultation\n\nHello ${c.name},\n\nThank you for your inquiry.\n\nWe've reviewed your consultation request and would like to schedule your appointment.\n\nDate: {{date}}\nTime: {{time}}\n\nPlease reply to confirm.\n\nThank you,\nVENSHA SKIN`;
+
+    openReplyModalGeneric({
+      id: id,
+      name: c.name,
+      email: c.email,
+      subject: "Your Consultation Request - VENSHA SKIN",
+      message: defaultMessage,
+      endpoint: `/api/admin/consultations/${id}/reply`,
+      onSuccess: () => loadDetail(id)
+    });
+  }
+
+  function openReplyModalGeneric({ id, name, email, subject, message, endpoint, onSuccess }) {
+    openModal({
+      title: 'Reply to Client',
+      wide: true,
+      body: `
+        <form data-reply-form>
+          <div class="form-group">
+            <label>To</label>
+            <input type="text" value="${name} <${email}>" disabled style="opacity:0.7;" />
+          </div>
+          <div class="form-group" style="margin-top:12px;">
+            <label>Subject</label>
+            <input type="text" id="reply-subject" value="${subject}" />
+          </div>
+          <div class="form-group" style="margin-top:12px;">
+            <label>Message</label>
+            <textarea id="reply-message" rows="14" style="font-size:0.85rem;line-height:1.6;">${message}</textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn" data-cancel>Cancel</button>
+            <button type="submit" class="btn btn-primary">&#9993; Send Email</button>
+          </div>
+        </form>`,
+    });
+
+    const overlay = document.querySelector('.modal-overlay');
+    overlay.querySelector('[data-cancel]').addEventListener('click', closeModal);
+    overlay.querySelector('[data-reply-form]').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const s = overlay.querySelector('#reply-subject').value;
+      const m = overlay.querySelector('#reply-message').value;
+      try {
+        await api(endpoint, {
+          method: 'POST',
+          body: { subject: s, message: m },
+        });
+        showToast('Reply sent successfully.', 'success');
+        closeModal();
+        if (onSuccess) onSuccess();
+      } catch (err) { showToast(err.message, 'error'); }
+    });
+  }
+
+  function openScheduleModal(c, id) {
+    openModal({
+      title: 'Schedule Consultation',
+      body: `
+        <form data-schedule-form>
+          <div class="form-group">
+            <label>Client</label>
+            <input type="text" value="${c.name}" disabled style="opacity:0.7;" />
+          </div>
+          <div class="form-grid" style="margin-top:12px;">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="sched-date" value="${c.preferredDate || ''}" required />
+            </div>
+            <div class="form-group">
+              <label>Time</label>
+              <input type="time" id="sched-time" value="${c.preferredTime || ''}" required />
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:12px;">
+            <label>Additional Message (optional)</label>
+            <textarea id="sched-message" rows="4" placeholder="Any notes for the client..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn" data-cancel>Cancel</button>
+            <button type="submit" class="btn btn-primary">&#128197; Send Schedule</button>
+          </div>
+        </form>`,
+    });
+
+    const overlay = document.querySelector('.modal-overlay');
+    overlay.querySelector('[data-cancel]').addEventListener('click', closeModal);
+    overlay.querySelector('[data-schedule-form]').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const scheduledDate = overlay.querySelector('#sched-date').value;
+      const scheduledTime = overlay.querySelector('#sched-time').value;
+      const message = overlay.querySelector('#sched-message').value;
+      const subject = 'Your Consultation Schedule - VENSHA SKIN';
+      try {
+        await api(`/api/admin/consultations/${id}/schedule`, {
+          method: 'POST',
+          body: { subject, message, scheduledDate, scheduledTime },
+        });
+        showToast('Schedule sent successfully.', 'success');
+        closeModal();
+        loadDetail(id);
+      } catch (err) { showToast(err.message, 'error'); }
+    });
+  }
+
+  loadList();
+}
+
 /* ═══════════════════════════════════════════
    NAVIGATION
    ═══════════════════════════════════════════ */
 
 const tabRenderers = {
   dashboard: renderDashboard,
-  appointments: renderAppointments,
+  'machine-inquiries': renderMachineInquiries,
   inbox: renderInbox,
+  consultations: renderConsultations,
   gallery: renderGallery,
   testimonials: renderTestimonials,
   research: renderResearch,
@@ -1685,4 +2253,55 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /* Render initial tab */
   switchTab('dashboard');
+
+  /* Load notification badges */
+  updateNotificationBadges();
+  setInterval(updateNotificationBadges, 60000); // refresh every 60s
 });
+
+/* ═══ Notification Badges ═══ */
+async function updateNotificationBadges() {
+  try {
+    const [consultData, miData, msgData] = await Promise.allSettled([
+      api('/api/admin/consultations?status=new&limit=100'),
+      api('/api/admin/machine-inquiries?status=new&limit=100'),
+      api('/api/admin/messages'),
+    ]);
+
+    const consultCount = consultData.status === 'fulfilled'
+      ? (consultData.value.consultations || consultData.value || []).length
+      : 0;
+
+    const miCount = miData.status === 'fulfilled'
+      ? (miData.value.inquiries || miData.value || []).length
+      : 0;
+
+    const unreadMessages = msgData.status === 'fulfilled'
+      ? (msgData.value.messages || []).filter(m => !m.isRead).length
+      : 0;
+
+    setBadge('consultations', consultCount);
+    setBadge('machine-inquiries', miCount);
+    setBadge('inbox', unreadMessages);
+  } catch (err) {
+    // Silently fail - badges are non-critical
+  }
+}
+
+function setBadge(tabId, count) {
+  const link = document.querySelector(`.sidebar-link[data-tab="${tabId}"]`);
+  if (!link) return;
+
+  let badge = link.querySelector('.sidebar-badge');
+  if (count > 0) {
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'sidebar-badge';
+      link.appendChild(badge);
+    }
+    badge.textContent = count > 99 ? '99+' : count;
+  } else if (badge) {
+    badge.remove();
+  }
+}
+

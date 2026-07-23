@@ -45,7 +45,6 @@
         <a href="#faq">FAQ</a>
         <a href="#book">Book Consultation</a>
         <a href="/login.html">Sign in</a>
-        <a href="/account.html">My account</a>
       </div>
     </div>
 
@@ -58,7 +57,7 @@
             Your curves—eternalized by Megashape Pro. A revolutionary cellulite treatment that is safe, effective, and requires no downtime.
           </p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#book">Book a consultation</a>
+            <a class="btn btn-primary" href="#book">Book a consultation <span class="btn-arrow">&rarr;</span></a>
             <a class="btn btn-ghost" href="#technologies">Explore technologies</a>
           </div>
           <p class="hero-tagline">Sculpt &middot; Strengthen &middot; Radiate</p>
@@ -72,6 +71,37 @@
         </div>
       </div>
     </header>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator" id="scrollIndicator">
+      <span>Explore</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <!-- Trust strip -->
+    <div class="trust-strip">
+      <div class="container trust-strip-inner">
+        <div class="trust-item">
+          <span class="trust-stars">&starf;&starf;&starf;&starf;&starf;</span>
+          <span class="trust-text">Trusted by 500+ Clients</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-value">97%</span>
+          <span class="trust-label">Patient Satisfaction</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-value">30 min</span>
+          <span class="trust-label">Average Session</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-value">Zero</span>
+          <span class="trust-label">Downtime Required</span>
+        </div>
+      </div>
+    </div>
 
     <main>
       <section id="about" class="section container reveal" data-nav-theme="light">
@@ -91,22 +121,22 @@
             Megashape Pro integrates five core technologies to achieve fat reduction, body shaping, and skin rejuvenation through synergy.
           </p>
           <div class="applicators-grid">
-            <article class="applicator-card">
+            <article class="applicator-card" data-tech-target="vacuum">
               <img src="assets/images/vacuumRoller-removebg-preview.png" alt="Vacuum Roller applicator" />
               <h3>Vacuum Roller</h3>
               <p>Negative pressure with double-helix roller for tissue mobilization and RF energy transmission.</p>
             </article>
-            <article class="applicator-card">
+            <article class="applicator-card" data-tech-target="rf">
               <img src="assets/images/multiPolarRF-removebg-preview.png" alt="Multi-Polar RF applicator" />
               <h3>Multi-Polar RF</h3>
               <p>Heats deep epidermal layers to stimulate collagen synthesis and improve skin texture.</p>
             </article>
-            <article class="applicator-card">
+            <article class="applicator-card" data-tech-target="infrared">
               <img src="assets/images/bipolarRF-removebg-preview.png" alt="Bi-Polar RF applicator" />
               <h3>Bi-Polar RF</h3>
               <p>Targeted radio frequency lifting for precise wrinkle improvement and skin tightening.</p>
             </article>
-            <article class="applicator-card">
+            <article class="applicator-card" data-tech-target="cavitation">
               <img src="assets/images/cavitation-removebg-preview.png" alt="Cavitation applicator" />
               <h3>Cavitation</h3>
               <p>40kHz low-frequency ultrasound to support fat cell disruption and body contouring.</p>
@@ -115,44 +145,106 @@
         </div>
       </section>
 
-      <section id="technologies" class="section container reveal" data-nav-theme="light">
-        <div class="section-heading">
-          <p class="eyebrow">How it works</p>
-          <h2>Full-dimensional effect through technology synergy</h2>
-        </div>
-        <div class="tech-interactive">
-          <div class="tech-tabs" role="tablist">
-            <button class="tech-tab active" role="tab" aria-selected="true" data-tech="vacuum">
-              Vacuum &amp; Roller
-            </button>
-            <button class="tech-tab" role="tab" aria-selected="false" data-tech="rf">
-              Radio Frequency
-            </button>
-            <button class="tech-tab" role="tab" aria-selected="false" data-tech="cavitation">
-              Cavitation
-            </button>
-            <button class="tech-tab" role="tab" aria-selected="false" data-tech="infrared">
-              940nm Infrared
-            </button>
-            <button class="tech-tab" role="tab" aria-selected="false" data-tech="synergy">
-              Full Synergy
-            </button>
+      <section id="technologies" class="section tech-section reveal" data-nav-theme="light">
+        <div class="container">
+          <div class="section-heading centered">
+            <p class="eyebrow">How it works</p>
+            <h2>Full-dimensional effect through technology synergy</h2>
           </div>
-          <div class="tech-panel">
-            <div class="tech-content">
-              <h3 id="techTitle">Negative pressure &amp; roller</h3>
-              <p id="techDesc">
-                Combines vacuum negative pressure with a double-helix electric roller (15 rpm). Enhances the kneading effect of subcutaneous fat and promotes deeper transmission of radio frequency energy.
-              </p>
+
+          <div class="tech-card">
+            <div class="tech-tabs" role="tablist">
+              <button class="tech-tab active" role="tab" aria-selected="true" data-tech="vacuum">
+                <svg class="tech-tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span>Vacuum &amp; Roller</span>
+              </button>
+              <button class="tech-tab" role="tab" aria-selected="false" data-tech="rf">
+                <svg class="tech-tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span>Radio Frequency</span>
+              </button>
+              <button class="tech-tab" role="tab" aria-selected="false" data-tech="cavitation">
+                <svg class="tech-tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                <span>Cavitation</span>
+              </button>
+              <button class="tech-tab" role="tab" aria-selected="false" data-tech="infrared">
+                <svg class="tech-tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <span>940nm Infrared</span>
+              </button>
+              <button class="tech-tab" role="tab" aria-selected="false" data-tech="synergy">
+                <svg class="tech-tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v1m0 16v1m8.66-13.5l-.87.5M4.21 16l-.87.5M20.66 16l-.87-.5M4.21 8l-.87-.5M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><circle cx="12" cy="12" r="1"/></svg>
+                <span>Full Synergy</span>
+              </button>
             </div>
-            <div class="tech-visual">
-              <img id="techImage" src="assets/images/vacuumRoller-removebg-preview.png" alt="Vacuum roller technology" />
+
+            <div class="tech-panel">
+              <div class="tech-content" id="techContent">
+                <h3 id="techTitle">Negative Pressure &amp; Roller</h3>
+                <p id="techDesc">
+                  Combines vacuum negative pressure with a double-helix electric roller for enhanced fat kneading and deeper RF energy transmission.
+                </p>
+                <div class="tech-badges" id="techBadges">
+                  <div class="tech-badge">
+                    <span class="tech-badge-value">15 RPM</span>
+                    <span class="tech-badge-label">Roller Speed</span>
+                  </div>
+                  <div class="tech-badge">
+                    <span class="tech-badge-value">80 KPa</span>
+                    <span class="tech-badge-label">Vacuum Power</span>
+                  </div>
+                </div>
+                <div class="tech-features" id="techFeatures">
+                  <div class="tech-feature">
+                    <span class="tech-feature-check">✓</span>
+                    <div>
+                      <strong>Double Helix Roller</strong>
+                      <span>15 RPM massage</span>
+                    </div>
+                  </div>
+                  <div class="tech-feature">
+                    <span class="tech-feature-check">✓</span>
+                    <div>
+                      <strong>Negative Pressure</strong>
+                      <span>Improves lymphatic drainage</span>
+                    </div>
+                  </div>
+                  <div class="tech-feature">
+                    <span class="tech-feature-check">✓</span>
+                    <div>
+                      <strong>RF Penetration</strong>
+                      <span>Enhances thermal delivery</span>
+                    </div>
+                  </div>
+                  <div class="tech-feature">
+                    <span class="tech-feature-check">✓</span>
+                    <div>
+                      <strong>Fat Kneading</strong>
+                      <span>Targets stubborn fat</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tech-visual">
+                <div class="tech-visual-wrap">
+                  <div class="tech-visual-circle"></div>
+                  <img id="techImage" src="assets/images/vacuumRoller-removebg-preview.png" alt="Vacuum roller technology" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-bottom">
+            <h3>Why It Works</h3>
+            <p>
+              The Megashape Pro combines five advanced technologies into a single treatment system to promote fat reduction, improve circulation, stimulate collagen production, and tighten the skin.
+            </p>
+            <div class="tech-bottom-grid">
+              <div class="tech-bottom-item"><span>✓</span> Fat Reduction</div>
+              <div class="tech-bottom-item"><span>✓</span> Skin Tightening</div>
+              <div class="tech-bottom-item"><span>✓</span> Improved Circulation</div>
+              <div class="tech-bottom-item"><span>✓</span> Cellulite Reduction</div>
             </div>
           </div>
         </div>
-        <p class="tech-summary muted">
-          Through synergy of multiple technologies, Megashape Pro achieves deep fat reduction, superficial metabolism, skin tightening, and circulation optimization—improving body shaping, anti-aging, and cellulite appearance.
-        </p>
       </section>
 
       <section id="features" class="section section-alt reveal" data-nav-theme="soft">
@@ -217,11 +309,13 @@
       <section id="results" class="section container reveal" data-nav-theme="light">
         <div class="results-header">
           <span class="band-label-inline light">&raquo; Proven Significant Result</span>
+          <span class="results-badge">&diams; Clinically Validated</span>
         </div>
         <div class="section-heading">
           <p class="eyebrow">Clinical outcomes</p>
           <h2>Postpartum treatment for women</h2>
         </div>
+        <div class="section-divider"></div>
 
         <div class="results-grid">
           <div class="results-chart-panel panel">
@@ -254,11 +348,11 @@
               </li>
             </ul>
             <div class="stat-cards">
-              <div class="stat-card">
+              <div class="stat-card" aria-label="97% patient satisfaction">
                 <span class="stat-value">97%</span>
                 <span class="stat-label">patients reported satisfaction</span>
               </div>
-              <div class="stat-card">
+              <div class="stat-card" aria-label="82% maintained effect">
                 <span class="stat-value">82%</span>
                 <span class="stat-label">maintained effect after 3 months</span>
               </div>
@@ -374,27 +468,63 @@
         </div>
       </section>
 
-      <section id="benefits" class="section section-alt container reveal" data-nav-theme="soft">
+      <section id="benefits" class="section section-alt reveal" data-nav-theme="soft">
+        <div class="benefits-center-glow"></div>
+        <div class="container" style="position: relative; z-index: 1;">
         <div class="section-heading centered">
           <p class="eyebrow">Benefits &amp; expectations</p>
           <h2>A premium, informative experience</h2>
+          <p class="section-subtitle">Understanding what Megashape Pro can offer and what results you can realistically expect.</p>
         </div>
         <div class="two-column">
-          <div class="panel">
+          <div class="panel benefits-panel">
+            <div class="panel-header-accent"></div>
             <h3>Potential benefits</h3>
             <ul class="check-list">
-              <li>Improved confidence in body contouring goals</li>
-              <li>Enhanced skin appearance and overall tone</li>
-              <li>Personalized treatment planning</li>
-              <li>Professional guidance and aftercare support</li>
+              <li>
+                <span class="check-icon">&check;</span>
+                <span class="check-text">Improved confidence in body contouring goals</span>
+              </li>
+              <li>
+                <span class="check-icon">&check;</span>
+                <span class="check-text">Enhanced skin appearance and overall tone</span>
+              </li>
+              <li>
+                <span class="check-icon">&check;</span>
+                <span class="check-text">Personalized treatment planning</span>
+              </li>
+              <li>
+                <span class="check-icon">&check;</span>
+                <span class="check-text">Professional guidance and aftercare support</span>
+              </li>
+              <li>
+                <span class="check-icon">&check;</span>
+                <span class="check-text">Non-invasive with zero recovery time</span>
+              </li>
             </ul>
+            <p class="benefits-note">Each session is tailored to your unique body goals, ensuring a personalized path to visible results.</p>
           </div>
           <div class="panel panel-accent">
+            <div class="panel-header-accent"></div>
             <h3>Realistic expectations</h3>
             <p class="muted">
               Individual outcomes vary and depend on suitability, goals, and follow-up care. A consultation helps determine whether the treatment is right for you.
             </p>
+            <blockquote class="expectation-quote">
+              &ldquo;Results are progressive &mdash; most patients see meaningful improvement within 4&ndash;6 sessions, with optimal results developing over the following weeks.&rdquo;
+            </blockquote>
+            <div class="expectation-stats">
+              <div class="expectation-stat">
+                <span class="expectation-stat-value">4&ndash;8</span>
+                <span class="expectation-stat-label">recommended sessions</span>
+              </div>
+              <div class="expectation-stat">
+                <span class="expectation-stat-value">30 min</span>
+                <span class="expectation-stat-label">average session</span>
+              </div>
+            </div>
           </div>
+        </div>
         </div>
       </section>
 
@@ -402,99 +532,343 @@
         <div class="section-heading centered">
           <p class="eyebrow">FAQ</p>
           <h2>Before your consultation</h2>
+          <p class="section-subtitle">Common questions answered to help you feel confident and prepared.</p>
         </div>
         <div class="faq-list">
           <details open>
-            <summary>What is Megashape Pro?</summary>
+            <summary>
+              <span class="faq-question">What is Megashape Pro?</span>
+            </summary>
             <p>A multi-technology body contouring system combining vacuum roller, cavitation, RF, and infrared light for sculpting and skin improvement.</p>
           </details>
           <details>
-            <summary>Is it suitable for everyone?</summary>
+            <summary>
+              <span class="faq-question">Is it suitable for everyone?</span>
+            </summary>
             <p>No. Suitability is determined during consultation based on health history, goals, and treatment expectations.</p>
           </details>
           <details>
-            <summary>What should I expect from treatment?</summary>
+            <summary>
+              <span class="faq-question">What should I expect from treatment?</span>
+            </summary>
             <p>A guided, professional experience with clear communication, realistic outcomes, and aftercare support. No downtime required.</p>
           </details>
+          <details>
+            <summary>
+              <span class="faq-question">How many sessions will I need?</span>
+            </summary>
+            <p>The number of sessions depends on your individual goals and the area being treated. Most patients see results in 4&ndash;8 sessions, spaced 1&ndash;2 weeks apart.</p>
+          </details>
+          <details>
+            <summary>
+              <span class="faq-question">Is there any downtime?</span>
+            </summary>
+            <p>There is no downtime required. You can resume normal activities immediately after each session. Most clients describe the treatment as relaxing.</p>
+          </details>
+          <details>
+            <summary>
+              <span class="faq-question">How soon will I see results?</span>
+            </summary>
+            <p>Some patients notice improvements after the first session. Optimal results typically develop over 6&ndash;12 weeks as the body naturally processes treated fat cells.</p>
+          </details>
+        </div>
+        <div class="faq-cta">
+          <p>Still have questions? <a href="#book">Get in touch</a></p>
         </div>
       </section>
 
       <section id="book" class="section section-band reveal" data-nav-theme="gold">
         <div class="container booking-grid">
-          <div>
-            <p class="eyebrow light">Consultation</p>
-            <h2>Request your consultation</h2>
-            <p class="section-desc light">
-              Share your details and we will follow up to confirm your consultation request.
-            </p>
+          <div class="booking-info">
+            <div>
+              <p class="eyebrow light">Consultation</p>
+              <h2>Request your consultation</h2>
+              <p class="section-desc light">
+                Share your details and we will follow up to confirm your consultation request.
+              </p>
+            </div>
+
+            <div class="booking-glass">
+              <ul class="booking-trust-list">
+                <li>
+                  <span class="booking-trust-check">✓</span>
+                  Professional consultation
+                </li>
+                <li>
+                  <span class="booking-trust-check">✓</span>
+                  Personalized treatment plan
+                </li>
+                <li>
+                  <span class="booking-trust-check">✓</span>
+                  Response within 1–2 hours
+                </li>
+                <li>
+                  <span class="booking-trust-check">✓</span>
+                  No obligation to proceed
+                </li>
+              </ul>
+            </div>
+
+            <div class="booking-contact">
+              <a href="tel:09921209631">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                0992 120 9631
+              </a>
+              <a href="mailto:venshaskin@gmail.com">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                venshaskin@gmail.com
+              </a>
+            </div>
           </div>
           <form id="bookingForm" class="booking-form">
+            <!-- Inquiry Type Selection -->
+            <div class="inquiry-step-label">1. WHAT CAN WE HELP YOU WITH?</div>
+            <div class="inquiry-type-selector">
+              <div class="inquiry-type-card active" data-type="consultation">
+                <div class="inquiry-card-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+                </div>
+                <div class="inquiry-card-check">✓</div>
+                <strong>Consultation for Treatment</strong>
+                <span>I would like to experience Megashape Pro treatments.</span>
+              </div>
+              <div class="inquiry-type-card" data-type="purchase">
+                <div class="inquiry-card-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <div class="inquiry-card-check">✓</div>
+                <strong>Purchase a Megashape Pro Machine</strong>
+                <span>I am interested in purchasing the Megashape Pro device.</span>
+              </div>
+            </div>
+
+            <!-- Shared Fields -->
             <div class="form-grid">
               <label>
-                Full Name
-                <input type="text" name="name" placeholder="Enter full name" required />
+                Full Name <span class="required">*</span>
+                <input type="text" name="name" placeholder="Enter your full name" required />
               </label>
               <label>
-                Mobile Number
-                <input type="tel" name="phone" placeholder="09921209631" required />
+                Email Address <span class="required">*</span>
+                <input type="email" name="email" placeholder="Enter your email" required />
               </label>
               <label>
-                Email Address
-                <input type="email" name="email" placeholder="your@email.com" required />
+                Mobile Number <span class="required">*</span>
+                <input type="tel" name="phone" placeholder="Enter your mobile number" required />
               </label>
+
+              <!-- Company Name (shared, optional) -->
               <label>
-                Preferred Treatment Area
-                <select name="treatment" required>
-                  <option value="" disabled selected>Select treatment area</option>
-                  <option>Face</option>
-                  <option>Body</option>
-                  <option>Contour Focus</option>
-                  <option>General Consultation</option>
-                </select>
+                Company Name <span class="optional-label">(Optional)</span>
+                <input type="text" name="companyName" placeholder="Enter company name" />
               </label>
-              <label>
-                Preferred Date
-                <input type="date" name="date" />
-              </label>
-              <label>
-                Preferred Time
-                <select name="time" required>
-                  <option value="" disabled selected>Select time</option>
-                  <option>Morning</option>
-                  <option>Afternoon</option>
-                  <option>Evening</option>
-                </select>
-              </label>
+            </div>
+
+            <!-- Consultation-Only Fields -->
+            <div class="form-group-consultation">
+              <div class="form-grid">
+                <div class="form-field-wide">
+                  <label>Preferred Treatment Area <span class="required">*</span></label>
+                  <span class="field-hint">Select all that apply</span>
+                  <input type="hidden" name="treatment" />
+                  <div class="treatment-chips">
+                    <button type="button" class="treatment-chip" data-value="Abdomen">Abdomen</button>
+                    <button type="button" class="treatment-chip" data-value="Waist">Waist</button>
+                    <button type="button" class="treatment-chip" data-value="Arms">Arms</button>
+                    <button type="button" class="treatment-chip" data-value="Thighs">Thighs</button>
+                    <button type="button" class="treatment-chip" data-value="Buttocks">Buttocks</button>
+                    <button type="button" class="treatment-chip" data-value="Back">Back</button>
+                    <button type="button" class="treatment-chip" data-value="Chin">Chin</button>
+                    <button type="button" class="treatment-chip" data-value="Full Body Assessment">Full Body Assessment</button>
+                  </div>
+                </div>
+                <label>
+                  Preferred Date
+                  <input type="date" name="date" />
+                </label>
+                <label>
+                  Preferred Time
+                  <select name="time">
+                    <option value="" disabled selected>Select time</option>
+                    <option>Morning (9AM–12PM)</option>
+                    <option>Afternoon (12PM–5PM)</option>
+                    <option>Evening (5PM–8PM)</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <!-- Purchase-Only Fields -->
+            <div class="form-group-purchase" style="display:none;">
+              <div class="form-grid">
+                <label>
+                  Business Name
+                  <input type="text" name="businessName" placeholder="Enter business name" />
+                </label>
+                <label>
+                  Business Type
+                  <select name="businessType">
+                    <option value="" disabled selected>Select type</option>
+                    <option>Aesthetic Clinic</option>
+                    <option>Dermatology Clinic</option>
+                    <option>Med Spa</option>
+                    <option>Wellness Center</option>
+                    <option>Beauty Salon</option>
+                    <option>Hospital / Medical Center</option>
+                    <option>Other</option>
+                  </select>
+                </label>
+                <label>
+                  Expected Purchase Timeline
+                  <select name="purchaseTimeline">
+                    <option value="" disabled selected>Select timeline</option>
+                    <option>Immediately</option>
+                    <option>Within 1 Month</option>
+                    <option>Within 3 Months</option>
+                    <option>Within 6 Months</option>
+                    <option>Just Exploring</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <!-- Message (shared) -->
+            <div class="form-grid">
               <label class="full">
-                Message / Concerns
-                <textarea name="message" rows="3" placeholder="Share your concerns or questions"></textarea>
+                Message
+                <textarea name="message" rows="3" placeholder="Tell us more about your goals or questions..." maxlength="500"></textarea>
+                <span class="char-counter"><span id="charCount">0</span> / 500</span>
               </label>
               <label class="checkbox full">
                 <input type="checkbox" name="consent" required />
-                I consent to the privacy policy and agree to be contacted regarding my consultation request.
+                I agree to the <a href="#" class="privacy-link">Privacy Policy</a> and consent to being contacted by VENSHA SKIN.
               </label>
-              <button class="btn btn-primary full" type="submit">Submit request</button>
+              <button class="btn btn-primary full" type="submit">SUBMIT INQUIRY</button>
             </div>
             <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
           </form>
         </div>
       </section>
 
-      <section id="contact" class="section container reveal" data-nav-theme="light">
-        <div class="contact-grid">
-          <div class="panel">
-            <h3>Visit the clinic</h3>
-            <p class="muted">Alabang-Zapote Road, Pamplona Tres<br />Las Pi&ntilde;as, 1747 Metro Manila<br />Open Mon&ndash;Sat</p>
-            <p class="muted"><strong>Phone:</strong> 09921209631</p>
-            <p class="muted"><strong>Email:</strong> venshaskin@gmail.com</p>
+      <div class="section-wave"></div>
+
+      <section id="contact" class="contact-section reveal" data-nav-theme="light">
+        <div class="contact-container">
+          <!-- Header -->
+          <div class="contact-header">
+            <p class="contact-eyebrow">Contact</p>
+            <h2 class="contact-title">We'd Love to Hear From You</h2>
+            <p class="contact-desc">Visit our clinic, book a consultation, or connect with us through social media.</p>
           </div>
-          <div class="panel">
-            <h3>Connect</h3>
-            <ul class="check-list">
-              <li>Instagram: @venshaskin</li>
-              <li>Facebook: VENSHASKIN</li>
-              <li>WhatsApp: 09921209631</li>
-            </ul>
+
+          <div class="contact-cards">
+            <!-- Visit Clinic Card -->
+            <div class="contact-card">
+              <div class="contact-card-label">Visit Clinic</div>
+
+              <!-- Map -->
+              <div class="contact-map">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3862.6!2d120.98!3d14.43!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTTCsDI1JzQ4LjAiTiAxMjDCsDU4JzQ4LjAiRQ!5e0!3m2!1sen!2sph!4v1"
+                  width="100%"
+                  height="220"
+                  style="border:0; border-radius: 12px;"
+                  allowfullscreen=""
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  title="Venshaskin Clinic Location"
+                ></iframe>
+                <div class="map-overlay">
+                  <a href="https://maps.google.com/?q=Alabang-Zapote+Road+Pamplona+Tres+Las+Pinas" target="_blank" rel="noopener" class="map-overlay-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    View Larger Map
+                  </a>
+                </div>
+              </div>
+
+              <!-- Location -->
+              <div class="contact-info-block">
+                <div class="contact-info-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                </div>
+                <div>
+                  <span class="contact-info-label">Location</span>
+                  <p class="contact-info-text"><a href="https://maps.google.com/?q=Alabang-Zapote+Road+Pamplona+Tres+Las+Pinas" target="_blank" rel="noopener" class="contact-link">Alabang-Zapote Road<br>Pamplona Tres<br>Las Pi&ntilde;as, 1747 Metro Manila</a></p>
+                </div>
+              </div>
+
+              <div class="contact-divider"></div>
+
+              <!-- Hours -->
+              <div class="contact-info-block">
+                <div class="contact-info-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                  <span class="contact-info-label">Hours</span>
+                  <p class="contact-info-text">Monday &ndash; Saturday<br>9:00 AM &ndash; 6:00 PM</p>
+                </div>
+              </div>
+
+              <div class="contact-divider"></div>
+
+              <!-- Contact -->
+              <div class="contact-info-block">
+                <div class="contact-info-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </div>
+                <div>
+                  <span class="contact-info-label">Contact</span>
+                  <p class="contact-info-text">
+                    <a href="tel:09921209631" class="contact-link">0992 120 9631</a><br>
+                    <a href="mailto:venshaskin@gmail.com" class="contact-link">venshaskin@gmail.com</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Follow Us Card -->
+            <div class="contact-card">
+              <div class="contact-card-label">Follow Us</div>
+              <div class="availability-badge">
+                <span class="availability-dot"></span>
+                <span>Open Today &middot; 9 AM &ndash; 6 PM</span>
+              </div>
+              <p class="contact-social-intro">Stay connected and see our latest transformations, tips, and offers.</p>
+
+              <div class="social-buttons">
+                <a href="https://instagram.com/venshaskin" target="_blank" rel="noopener" class="social-btn social-btn--instagram">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                  <span>Instagram</span>
+                  <span class="social-handle">@venshaskin</span>
+                </a>
+
+                <a href="https://facebook.com/VENSHASKIN" target="_blank" rel="noopener" class="social-btn social-btn--facebook">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                  <span>Facebook</span>
+                  <span class="social-handle">VENSHASKIN</span>
+                </a>
+
+                <a href="https://wa.me/639921209631" target="_blank" rel="noopener" class="social-btn social-btn--whatsapp">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  <span>WhatsApp</span>
+                  <span class="social-handle">Message us</span>
+                </a>
+              </div>
+
+              <div class="contact-divider" style="margin-top: 1.5rem;"></div>
+
+              <div class="contact-hours-note">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <span>We typically respond within 1&ndash;2 hours during business hours.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA Banner -->
+          <div class="contact-cta">
+            <p class="contact-cta-text">Ready to start your skincare journey?</p>
+            <a href="#book" class="contact-cta-btn">Book an Appointment</a>
           </div>
         </div>
       </section>

@@ -199,7 +199,7 @@ export function adminApi(path, options = {}) {
 export function requireGuest() {
   const user = getUser() || localAuthMe()?.user;
   if (user) {
-    window.location.href = user.role === 'ADMIN' ? '/admin.html' : '/account.html';
+    window.location.href = user.role === 'ADMIN' ? '/admin.html' : '/';
   }
 }
 
@@ -214,7 +214,7 @@ export async function requireAuth(roles = []) {
     const data = await api('/api/auth/me');
     setUser(data.user);
     if (roles.length && !roles.includes(data.user.role)) {
-      window.location.href = data.user.role === 'ADMIN' ? '/admin.html' : '/account.html';
+      window.location.href = data.user.role === 'ADMIN' ? '/admin.html' : '/';
       return null;
     }
     return data;

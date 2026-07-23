@@ -20,13 +20,13 @@ fetch('/api/settings/status')
   })
   .catch(() => {});
 
-/* Show "My account" in nav when signed in */
+/* Show admin link in nav when signed in */
 try {
   const stored = JSON.parse(localStorage.getItem('vensha_user') || 'null');
   const signInLink = document.querySelector('.nav-signin');
   if (stored && signInLink) {
-    signInLink.textContent = 'Account';
-    signInLink.href = stored.role === 'ADMIN' ? '/admin.html' : '/account.html';
+    signInLink.textContent = stored.role === 'ADMIN' ? 'Admin' : 'Account';
+    signInLink.href = stored.role === 'ADMIN' ? '/admin.html' : '/';
   }
 } catch { /* ignore */ }
 
@@ -205,5 +205,25 @@ techTabs.forEach((tab) => {
       techDesc.textContent = data.desc;
       if (techImage) techImage.src = data.image;
     }
+  });
+});
+
+/* ── Applicator cards → tech tab navigation ── */
+document.querySelectorAll('.applicator-card').forEach((card) => {
+  card.addEventListener('click', () => {
+    const target = card.dataset.techTarget;
+    if (!target) return;
+
+    const matchingTab = document.querySelector(`.tech-tab[data-tech="${target}"]`);
+    if (!matchingTab) return;
+
+    /* scroll to the technologies section */
+    const techSection = document.getElementById('technologies');
+    if (techSection) {
+      techSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* activate the matching tab after a brief delay so the user sees the transition */
+    setTimeout(() => matchingTab.click(), 400);
   });
 });

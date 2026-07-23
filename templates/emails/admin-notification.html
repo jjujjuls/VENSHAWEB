@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Inquiry Received</title>
+</head>
+<body style="margin:0;padding:40px;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td align="center">
+
+<table width="650" cellpadding="0" cellspacing="0"
+style="
+background:#ffffff;
+border-radius:18px;
+overflow:hidden;
+box-shadow:0 10px 40px rgba(0,0,0,.08);
+">
+
+<!-- Header -->
+<tr>
+<td style="padding:50px;text-align:center;background:#ffffff;border-bottom:1px solid #ececec;">
+<h1 style="margin:0;font-size:42px;font-family:Georgia,serif;font-weight:500;letter-spacing:2px;color:#111111;">
+VENSHA
+</h1>
+<div style="margin-top:8px;font-size:15px;letter-spacing:8px;color:#B89B5E;">
+SKIN
+</div>
+<div style="margin-top:18px;width:80px;height:2px;background:#B89B5E;display:inline-block;">
+</div>
+</td>
+</tr>
+
+<!-- Title & Badge -->
+<tr>
+<td style="padding:45px 55px 20px;">
+<h2 style="margin:0;font-family:Georgia,serif;font-size:28px;font-weight:500;color:#111111;">
+NEW INQUIRY RECEIVED
+</h2>
+<div style="margin-top:16px;display:inline-block;background:#f9f6f0;border:1px solid #e8dfc8;color:#B89B5E;font-size:13px;font-weight:bold;padding:8px 16px;border-radius:4px;letter-spacing:1px;text-transform:uppercase;">
+{{inquiry_type_label}}
+</div>
+<p style="font-size:16px;line-height:28px;color:#666;margin-top:18px;">
+A new inquiry has been submitted through the VENSHA SKIN website. Please review the details below.
+</p>
+</td>
+</tr>
+
+<!-- Dynamic Fields Section -->
+<tr>
+<td style="padding:0 55px 20px;">
+<h3 style="margin:0 0 15px 0;font-family:Georgia,serif;font-size:20px;font-weight:500;color:#333;">
+{{section_label}}
+</h3>
+<table width="100%" cellpadding="0" cellspacing="0"
+style="border:1px solid #eee;border-radius:10px;background:#fbfbfb;">
+<tr>
+<td style="padding:24px;">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    {{fields_html}}
+  </table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<!-- Message Section (if any) -->
+{{message_html}}
+
+<!-- Divider -->
+<tr>
+<td align="center" style="padding:20px 55px;">
+<div style="width:100%;height:1px;background:#ececec;"></div>
+</td>
+</tr>
+
+<!-- CTA -->
+<tr>
+<td align="center" style="padding:20px 55px 40px;">
+<a href="{{dashboard_url}}"
+style="display:inline-block;padding:16px 42px;background:#B89B5E;color:#fff;text-decoration:none;border-radius:4px;font-weight:bold;letter-spacing:1px;font-size:14px;text-transform:uppercase;">
+View Inquiry in Admin Dashboard
+</a>
+</td>
+</tr>
+
+<!-- Footer -->
+<tr>
+<td style="padding:45px;text-align:center;color:#888;font-size:13px;background:#fafafa;border-top:1px solid #ececec;">
+<div style="width:40px;height:2px;background:#B89B5E;margin:0 auto 20px;"></div>
+<p style="margin:0;font-weight:bold;color:#333;letter-spacing:1px;">VENSHA SKIN</p>
+<p style="margin:8px 0 0;font-style:italic;">Luxury Body Contouring &amp; Aesthetic Treatments</p>
+<p style="margin:16px 0 0;font-size:12px;color:#aaa;">Alabang-Zapote Road, Pamplona Tres, Las Pi&ntilde;as, Metro Manila</p>
+<p style="margin:8px 0 0;font-size:12px;color:#aaa;">0992 120 9631 &middot; venshaskin@gmail.com</p>
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
+
+</body>
+</html>

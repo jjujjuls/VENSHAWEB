@@ -276,9 +276,86 @@ export async function sendAdminComposedEmail({ to, subject, message, templateSlu
   return result;
 }
 
+async function buildAdminNotificationEmail(type, data) {
+  const html = await loadTemplate('admin-notification.html');
+  
+  const buildRow = (label, value) => {
+    if (!value || value === '—') return '';
+    return `<tr>
+      <td width="30%" style="padding:10px 0;font-size:14px;color:#888;">${label}</td>
+      <td width="70%" style="padding:10px 0;font-size:15px;color:#333;font-weight:bold;">${value}</td>
+    </tr>`;
+  };
+
+  let fieldsHtml = '';
+  let inquiryTypeLabel = '';
+  let sectionLabel = '';
+  let dashboardUrl = '';
+
+  if (type === 'consultation') {
+    inquiryTypeLabel = '✓ Consultation for Treatment';
+    sectionLabel = 'Client Information';
+    
+    let treatmentAreas = data.treatment;
+    if (treatmentAreas && treatmentAreas.includes(',')) {
+      const areas = treatmentAreas.split(',').map(a => a.trim()).filter(Boolean);
+      treatmentAreas = '<ul style="margin:0;padding-left:20px;">' + areas.map(a => `<li>${a}</li>`).join('') + '</ul>';
+    }
+
+    fieldsHtml += buildRow('Name', data.name);
+    fieldsHtml += buildRow('Email', data.email);
+    fieldsHtml += buildRow('Mobile', data.phone);
+    fieldsHtml += buildRow('Treatment Areas', treatmentAreas);
+    fieldsHtml += buildRow('Preferred Date', data.preferredDate);
+    fieldsHtml += buildRow('Preferred Time', data.preferredTime);
+    
+    dashboardUrl = `${process.env.PUBLIC_URL || 'http://localhost:3000'}/admin#consultations`;
+  } else if (type === 'purchase') {
+    inquiryTypeLabel = '✓ Purchase a Megashape Pro Machine';
+    sectionLabel = 'Business Information';
+    
+    fieldsHtml += buildRow('Name', data.name);
+    fieldsHtml += buildRow('Email', data.email);
+    fieldsHtml += buildRow('Mobile', data.phone);
+    fieldsHtml += buildRow('Company', data.companyName);
+    fieldsHtml += buildRow('Business Name', data.businessName);
+    fieldsHtml += buildRow('Business Type', data.businessType);
+    fieldsHtml += buildRow('Purchase Timeline', data.purchaseTimeline);
+    
+    dashboardUrl = `${process.env.PUBLIC_URL || 'http://localhost:3000'}/admin#machine-inquiries`;
+  }
+
+  let messageHtml = '';
+  if (data.message && data.message.trim()) {
+    messageHtml = `
+    <tr>
+    <td style="padding:0 55px 20px;">
+    <h3 style="margin:0 0 15px 0;font-family:Georgia,serif;font-size:20px;font-weight:500;color:#333;">
+    Message
+    </h3>
+    <table width="100%" cellpadding="0" cellspacing="0"
+    style="border:1px solid #eee;border-radius:10px;background:#fbfbfb;">
+    <tr>
+    <td style="padding:24px;font-size:15px;color:#333;line-height:1.6;">
+      ${data.message.replace(/\n/g, '<br>')}
+    </td>
+    </tr>
+    </table>
+    </td>
+    </tr>`;
+  }
+
+  return renderTemplate(html, {
+    inquiry_type_label: inquiryTypeLabel,
+    section_label: sectionLabel,
+    fields_html: fieldsHtml,
+    message_html: messageHtml,
+    dashboard_url: dashboardUrl
+  });
+}
+
 export async function sendConsultationEmails(consultation) {
   const clientMessage = consultationDetailsHtml(consultation);
-  const adminMessage = clientMessage;
 
   const transport = createTransport();
   const adminEmail = getAdminEmail();
@@ -293,15 +370,21 @@ export async function sendConsultationEmails(consultation) {
     },
   }).catch(console.error);
 
-  const mailOptions = [
-    {
+  if (!transport) {
+    console.log('[email] SMTP not configured. Consultation saved; emails skipped.');
+    return { sent: false, reason: 'smtp_not_configured' };
+  }
+
+  const adminHtml = await buildAdminNotificationEmail('consultation', consultation);
+
+  await Promise.all([
+    transport.sendMail({
+      from: getFromAddress(),
       to: adminEmail,
       subject: 'New Consultation Request — VENSHA SKIN',
-      templateSlug: 'consultation-admin',
-      name: 'Admin',
-      message: adminMessage,
-    },
-    {
+      html: adminHtml,
+    }),
+    sendBrandedEmail({
       to: consultation.email,
       subject: 'Thank You — VENSHA SKIN Consultation Request Received',
       templateSlug: 'booking',
@@ -309,15 +392,9 @@ export async function sendConsultationEmails(consultation) {
       message: `<p>We have received your consultation request and will be in touch shortly.</p>${clientMessage}`,
       headline: 'Thank you for reaching out',
       intro: 'Our team will review your inquiry and connect with you to schedule your visit.',
-    },
-  ];
-
-  if (!transport) {
-    console.log('[email] SMTP not configured. Consultation saved; emails skipped.');
-    return { sent: false, reason: 'smtp_not_configured' };
-  }
-
-  await Promise.all(mailOptions.map((opts) => sendBrandedEmail(opts)));
+    })
+  ]);
+  
   return { sent: true };
 }
 
@@ -326,8 +403,11 @@ export async function sendMachineInquiryEmails(inquiry, user) {
   const details = `
     <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;line-height:24px;color:#444;">
       <tr><td style="padding:6px 0;color:#888;width:120px;">Client</td><td style="padding:6px 0;"><strong>${name}</strong></td></tr>
+      ${inquiry.companyName ? `<tr><td style="padding:6px 0;color:#888;">Company</td><td style="padding:6px 0;">${inquiry.companyName}</td></tr>` : ''}
       <tr><td style="padding:6px 0;color:#888;">Business</td><td style="padding:6px 0;">${inquiry.businessName || '—'}</td></tr>
+      ${inquiry.businessType ? `<tr><td style="padding:6px 0;color:#888;">Business Type</td><td style="padding:6px 0;">${inquiry.businessType}</td></tr>` : ''}
       <tr><td style="padding:6px 0;color:#888;">Machine</td><td style="padding:6px 0;"><strong>${inquiry.machineModel}</strong> × ${inquiry.quantity}</td></tr>
+      ${inquiry.purchaseTimeline ? `<tr><td style="padding:6px 0;color:#888;">Timeline</td><td style="padding:6px 0;">${inquiry.purchaseTimeline}</td></tr>` : ''}
       <tr><td style="padding:6px 0;color:#888;">Email</td><td style="padding:6px 0;">${inquiry.email}</td></tr>
       <tr><td style="padding:6px 0;color:#888;">Phone</td><td style="padding:6px 0;">${inquiry.phone}</td></tr>
       ${inquiry.message ? `<tr><td style="padding:6px 0;color:#888;">Message</td><td style="padding:6px 0;">${inquiry.message}</td></tr>` : ''}
@@ -339,14 +419,14 @@ export async function sendMachineInquiryEmails(inquiry, user) {
     return { sent: false, reason: 'smtp_not_configured' };
   }
 
+  const adminHtml = await buildAdminNotificationEmail('purchase', inquiry);
+
   await Promise.all([
-    sendBrandedEmail({
+    transport.sendMail({
+      from: getFromAddress(),
       to: getAdminEmail(),
-      templateSlug: 'consultation-admin',
-      name: 'Admin',
       subject: 'Machine Purchase Inquiry — VENSHA SKIN',
-      message: details,
-      headline: 'New machine purchase inquiry',
+      html: adminHtml,
     }),
     sendBrandedEmail({
       to: inquiry.email,
@@ -379,7 +459,7 @@ export async function sendWelcomeEmail(user) {
 export async function sendAppointmentBookingEmails(appointment, user, { isAdminNotify = true } = {}) {
   const name = `${user.firstName} ${user.lastName}`.trim();
   const details = appointmentDetailsHtml(appointment, user);
-  const portalUrl = `${process.env.PUBLIC_URL || 'http://localhost:3000'}/account.html#appointments`;
+  const portalUrl = `${process.env.PUBLIC_URL || 'http://localhost:3000'}/#book`;
 
   const sends = [
     sendBrandedEmail({
@@ -418,7 +498,7 @@ export async function sendAppointmentConfirmationEmail(appointment, user) {
     intro: 'We look forward to welcoming you. Here are your confirmed appointment details.',
     message: appointmentDetailsHtml(appointment, user),
     ctaText: 'Manage Appointment',
-    ctaUrl: `${process.env.PUBLIC_URL || 'http://localhost:3000'}/account.html#appointments`,
+    ctaUrl: `${process.env.PUBLIC_URL || 'http://localhost:3000'}/#book`,
   });
 }
 
@@ -430,7 +510,7 @@ export async function sendAppointmentReminderEmail(appointment, user) {
     name,
     message: appointmentDetailsHtml(appointment, user),
     ctaText: 'View Details',
-    ctaUrl: `${process.env.PUBLIC_URL || 'http://localhost:3000'}/account.html#appointments`,
+    ctaUrl: `${process.env.PUBLIC_URL || 'http://localhost:3000'}/#book`,
   });
 }
 
@@ -445,7 +525,7 @@ export async function sendAppointmentRescheduleEmail(appointment, user, previous
     intro: `Your appointment has been moved from ${formatDateTime(previousDate)} to the new time below.`,
     message: appointmentDetailsHtml(appointment, user),
     ctaText: 'View Appointment',
-    ctaUrl: `${process.env.PUBLIC_URL || 'http://localhost:3000'}/account.html#appointments`,
+    ctaUrl: `${process.env.PUBLIC_URL || 'http://localhost:3000'}/#book`,
   });
 }
 

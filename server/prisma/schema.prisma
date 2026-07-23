@@ -61,6 +61,9 @@ model Consultation {
   preferredTime String?
   message     String?
   status      String   @default("new")
+  assignedTo  String?
+  notes       String?
+  updatedAt   DateTime @default(now()) @updatedAt
   createdAt   DateTime @default(now())
 
   user         User?         @relation(fields: [userId], references: [id])
@@ -70,14 +73,17 @@ model Consultation {
 model MachineInquiry {
   id           String   @id @default(cuid())
   userId       String?
-  name         String?
-  businessName String?
-  phone        String
-  email        String
-  machineModel String   @default("Megashape Pro")
-  quantity     Int      @default(1)
-  intendedUse  String?
-  message      String?
+  name             String?
+  companyName      String?
+  businessName     String?
+  businessType     String?
+  purchaseTimeline String?
+  phone            String
+  email            String
+  machineModel     String   @default("Megashape Pro")
+  quantity         Int      @default(1)
+  intendedUse      String?
+  message          String?
   status       String   @default("new")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
