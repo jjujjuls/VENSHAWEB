@@ -27,7 +27,7 @@
           <a href="#treatment">Treatment</a>
           <a href="#technologies">Technologies</a>
         </div>
-        <a class="brand" href="#">VENSHA<span>SKIN</span></a>
+        <a class="brand" href="#"><img src="assets/images/logo-placeholder.png" alt="VENSHA SKIN" width="32" height="32" style="vertical-align:middle;margin-right:6px;border-radius:4px;" />ENSHA<span>SKIN</span></a>
         <div class="nav-side nav-right">
           <a href="#results">Results</a>
           <a href="/login.html" class="nav-signin">Sign in</a>
@@ -646,15 +646,15 @@
             <!-- Shared Fields -->
             <div class="form-grid">
               <label>
-                Full Name <span class="required">*</span>
+                Full Name
                 <input type="text" name="name" placeholder="Enter your full name" required />
               </label>
               <label>
-                Email Address <span class="required">*</span>
+                Email Address
                 <input type="email" name="email" placeholder="Enter your email" required />
               </label>
               <label>
-                Mobile Number <span class="required">*</span>
+                Mobile Number
                 <input type="tel" name="phone" placeholder="Enter your mobile number" required />
               </label>
 
@@ -669,7 +669,7 @@
             <div class="form-group-consultation">
               <div class="form-grid">
                 <div class="form-field-wide">
-                  <label>Preferred Treatment Area <span class="required">*</span></label>
+                  <label>Preferred Treatment Area</label>
                   <span class="field-hint">Select all that apply</span>
                   <input type="hidden" name="treatment" />
                   <div class="treatment-chips">
@@ -742,7 +742,7 @@
               </label>
               <label class="checkbox full">
                 <input type="checkbox" name="consent" required />
-                I agree to the <a href="#" class="privacy-link">Privacy Policy</a> and consent to being contacted by VENSHA SKIN.
+                I agree to the <a href="#" class="privacy-link" id="privacyPolicyLink">Privacy Policy</a> and consent to being contacted by VENSHA SKIN.
               </label>
               <button class="btn btn-primary full" type="submit">SUBMIT INQUIRY</button>
             </div>
@@ -794,7 +794,7 @@
                 </div>
                 <div>
                   <span class="contact-info-label">Location</span>
-                  <p class="contact-info-text"><a href="https://maps.google.com/?q=Investment+Dr+Almanza+Uno+Las+Pinas" target="_blank" rel="noopener" class="contact-link">Investment Dr<br>Almanza Uno<br>Las Pi&ntilde;as, 1750 Metro Manila</a></p>
+                  <p class="contact-info-text"><a href="https://maps.google.com/?q=Investment+Dr+Almanza+Uno+Las+Pinas" target="_blank" rel="noopener" class="contact-link">Investment Dr<br>Almanza Uno<br>Las Pi&ntilde;as, 1750 Metro Manila<br><small>Plus Code: C2GC+2V Las Piñas, Metro Manila</small></a></p>
                 </div>
               </div>
 
@@ -884,6 +884,150 @@
         <a class="btn btn-primary" href="#book">Request consultation</a>
       </div>
     </footer>
+
+    <!-- ── Privacy Policy Modal ── -->
+    <div class="privacy-modal" id="privacyModal" hidden>
+      <div class="privacy-modal-backdrop"></div>
+      <div class="privacy-modal-content">
+        <button class="privacy-modal-close" id="privacyModalClose" aria-label="Close">&times;</button>
+        <div class="privacy-modal-body">
+          <h2>Privacy Policy</h2>
+          <p class="privacy-effective-date">Effective Date: July 24, 2026</p>
+
+          <p>At <strong>VENSHASKIN</strong>, we value your privacy and are committed to protecting the personal information you share with us. This Privacy Policy explains how we collect, use, store, and safeguard your information when you visit our website, submit an inquiry, request a consultation, or communicate with our team.</p>
+
+          <p>By using our website, you agree to the practices described in this Privacy Policy.</p>
+
+          <h3>1. Information We Collect</h3>
+          <p>We may collect the following information when you interact with our website:</p>
+
+          <h4>Personal Information</h4>
+          <ul>
+            <li>Full Name</li>
+            <li>Email Address</li>
+            <li>Mobile Number</li>
+            <li>Company Name (if applicable)</li>
+            <li>Business Name (if applicable)</li>
+            <li>Business Type</li>
+            <li>Expected Purchase Timeline</li>
+            <li>Information you provide in your inquiry or consultation request</li>
+          </ul>
+
+          <h4>Technical Information</h4>
+          <p>When you visit our website, certain information may be collected automatically, including:</p>
+          <ul>
+            <li>IP address</li>
+            <li>Browser type</li>
+            <li>Device information</li>
+            <li>Operating system</li>
+            <li>Pages visited</li>
+            <li>Date and time of access</li>
+            <li>Referral source</li>
+            <li>Cookies and similar technologies</li>
+          </ul>
+
+          <h3>2. How We Use Your Information</h3>
+          <p>We use your information to:</p>
+          <ul>
+            <li>Respond to consultation requests and inquiries.</li>
+            <li>Provide information about our treatments and technologies.</li>
+            <li>Assist customers interested in purchasing Contour Pro Max equipment.</li>
+            <li>Schedule appointments and consultations.</li>
+            <li>Improve our website, services, and customer experience.</li>
+            <li>Send appointment confirmations and service-related communications.</li>
+            <li>Comply with applicable legal and regulatory obligations.</li>
+            <li>Prevent fraud and protect the security of our website.</li>
+          </ul>
+          <p>We do not sell your personal information to third parties.</p>
+
+          <h3>3. Consultation Requests</h3>
+          <p>When you submit a consultation request, we use the information provided solely for the purpose of:</p>
+          <ul>
+            <li>Contacting you regarding your inquiry.</li>
+            <li>Assessing your treatment goals.</li>
+            <li>Preparing a personalized consultation.</li>
+            <li>Recommending suitable treatment options based on the information you voluntarily provide.</li>
+          </ul>
+          <p>Submitting a consultation request does not obligate you to purchase any products or services.</p>
+
+          <h3>4. Machine Purchase Inquiries</h3>
+          <p>If you inquire about purchasing a Contour Pro Max machine, we may use your information to:</p>
+          <ul>
+            <li>Provide quotations and product information.</li>
+            <li>Discuss business requirements.</li>
+            <li>Coordinate product demonstrations.</li>
+            <li>Provide after-sales support and customer service.</li>
+          </ul>
+
+          <h3>5. Cookies</h3>
+          <p>Our website may use cookies and similar technologies to:</p>
+          <ul>
+            <li>Remember your preferences.</li>
+            <li>Improve website functionality.</li>
+            <li>Measure website performance.</li>
+            <li>Understand visitor behavior.</li>
+            <li>Enhance user experience.</li>
+          </ul>
+          <p>You may disable cookies through your browser settings, although some website features may not function properly.</p>
+
+          <h3>6. Data Sharing</h3>
+          <p>We only share your information when necessary, including:</p>
+          <ul>
+            <li>Trusted service providers who assist with website hosting, email communications, appointment scheduling, or customer support.</li>
+            <li>Professional advisers when legally required.</li>
+            <li>Government authorities when required by applicable law.</li>
+          </ul>
+          <p>All service providers are expected to maintain appropriate confidentiality and security standards.</p>
+
+          <h3>7. Data Security</h3>
+          <p>We implement reasonable administrative, technical, and organizational safeguards to protect your personal information against unauthorized access, disclosure, alteration, or destruction.</p>
+          <p>While we strive to protect your information, no method of electronic transmission or storage can be guaranteed to be completely secure.</p>
+
+          <h3>8. Data Retention</h3>
+          <p>We retain your information only for as long as necessary to:</p>
+          <ul>
+            <li>Respond to your inquiries.</li>
+            <li>Provide requested services.</li>
+            <li>Fulfill legal, accounting, or regulatory obligations.</li>
+            <li>Resolve disputes and maintain business records.</li>
+          </ul>
+          <p>Information that is no longer required is securely deleted or anonymized where appropriate.</p>
+
+          <h3>9. Your Rights</h3>
+          <p>Depending on applicable privacy laws, you may have the right to:</p>
+          <ul>
+            <li>Request access to your personal information.</li>
+            <li>Correct inaccurate or incomplete information.</li>
+            <li>Request deletion of your personal data.</li>
+            <li>Withdraw consent where processing is based on consent.</li>
+            <li>Request restrictions on certain processing activities.</li>
+            <li>Object to certain uses of your information.</li>
+          </ul>
+          <p>To exercise these rights, please contact us using the information below.</p>
+
+          <h3>10. Third-Party Services</h3>
+          <p>Our website may contain links to third-party websites, social media platforms, or mapping services. These services operate independently and have their own privacy policies.</p>
+          <p>We encourage you to review the privacy policies of any third-party websites you visit.</p>
+
+          <h3>11. Children's Privacy</h3>
+          <p>Our website and services are intended for individuals who are at least 18 years of age or are using our services with appropriate parental or legal guardian consent. We do not knowingly collect personal information from children.</p>
+
+          <h3>12. Updates to This Policy</h3>
+          <p>We may update this Privacy Policy from time to time to reflect changes in our services, legal requirements, or business practices.</p>
+          <p>The updated version will become effective once published on this page.</p>
+
+          <h3>13. Contact Us</h3>
+          <p>If you have questions regarding this Privacy Policy or your personal information, please contact us:</p>
+          <p><strong>VENSHASKIN</strong></p>
+          <p><strong>Email:</strong> <a href="mailto:venshaskin@gmail.com">venshaskin@gmail.com</a></p>
+          <p><strong>Phone:</strong> 0992 120 9631</p>
+          <p><strong>Clinic Address:</strong> Investment Drive, Almanza Uno, Las Piñas City, Metro Manila</p>
+
+          <h3>Consent</h3>
+          <p>By submitting any form on this website, you acknowledge that you have read and understood this Privacy Policy and consent to the collection, processing, and storage of your information for the purposes described above.</p>
+        </div>
+      </div>
+    </div>
 
     <script src="script.js"></script>
   </body>

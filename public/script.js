@@ -312,7 +312,6 @@ const techData = {
   synergy: {
     title: 'Full-Dimensional Synergy',
     desc: 'All five technologies work together: deep fat reduction, superficial metabolism, skin tightening, and circulation optimization.',
-    image: 'assets/images/synergy-infographic.jpg',
     badges: [
       { value: '5-in-1', label: 'Technology' },
       { value: '800W', label: 'Maximum Output' },
@@ -427,20 +426,36 @@ function updateTechContent(key) {
       .join('');
   }
 
-  // Show original collage image below main image for synergy tab
+  // Handle synergy tab: show collage image below description, hide tech-visual
   const visualWrapEl = document.querySelector('.tech-visual-wrap');
   if (visualWrapEl) {
     const existingCollage = visualWrapEl.querySelector('.synergy-collage');
     if (existingCollage) existingCollage.remove();
 
     if (key === 'synergy') {
-      const collageImg = document.createElement('img');
-      collageImg.src = 'assets/images/fullDimensionalEffect.png';
-      collageImg.alt = 'Five technologies working together';
-      collageImg.className = 'synergy-collage';
-      collageImg.style.cssText = 'position:relative;z-index:1;width:100%;max-height:220px;object-fit:contain;margin-top:16px;border-radius:12px;opacity:0;transition:opacity 0.5s ease;';
-      visualWrapEl.appendChild(collageImg);
-      requestAnimationFrame(() => { collageImg.style.opacity = '1'; });
+      // Hide the tech-visual for synergy tab
+      visualWrapEl.style.display = 'none';
+
+      // Remove any existing synergy collage from tech-content
+      const existingContentCollage = document.querySelector('.tech-content .synergy-collage');
+      if (existingContentCollage) existingContentCollage.remove();
+
+      // Insert synergy collage image below techDesc, centered and bigger
+      if (techContent) {
+        const collageImg = document.createElement('img');
+        collageImg.src = 'assets/images/fullDimensionalEffect.png';
+        collageImg.alt = 'Five technologies working together';
+        collageImg.className = 'synergy-collage';
+        collageImg.style.cssText = 'display:block;margin:1.5rem auto 0;max-width:520px;width:100%;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.1);opacity:0;transition:opacity 0.5s ease;';
+        techContent.insertBefore(collageImg, techContent.children[2]); // Insert after techDesc
+        requestAnimationFrame(() => { collageImg.style.opacity = '1'; });
+      }
+    } else {
+      // Show tech-visual for non-synergy tabs
+      visualWrapEl.style.display = '';
+      // Remove any synergy collage from tech-content
+      const contentCollage = document.querySelector('.tech-content .synergy-collage');
+      if (contentCollage) contentCollage.remove();
     }
   }
 }
@@ -732,6 +747,31 @@ function initSmoothScroll() {
   });
 }
 
+/* ── Privacy Policy Modal ── */
+function initPrivacyModal() {
+  const modal = document.getElementById('privacyModal');
+  const link = document.getElementById('privacyPolicyLink');
+  const closeBtn = document.getElementById('privacyModalClose');
+  if (!modal || !link) return;
+
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    modal.hidden = false;
+  });
+
+  function closeModal() {
+    modal.hidden = true;
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+  modal.querySelector('.privacy-modal-backdrop')?.addEventListener('click', closeModal);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.hidden) closeModal();
+  });
+}
+
 /* ── Initialize Everything ── */
 document.addEventListener('DOMContentLoaded', () => {
   initTiltEffect();
@@ -740,6 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initStaggeredReveal();
   initFormInteractions();
   initSmoothScroll();
+  initPrivacyModal();
 });
 
 highlightSegment('68');

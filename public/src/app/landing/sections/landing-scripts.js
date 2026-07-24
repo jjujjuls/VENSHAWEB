@@ -372,6 +372,31 @@ function initFormInteractions() {
   });
 }
 
+/* ── Privacy Policy Modal ── */
+function initPrivacyModal() {
+  const modal = document.getElementById('privacyModal');
+  const link = document.getElementById('privacyPolicyLink');
+  const closeBtn = document.getElementById('privacyModalClose');
+  if (!modal || !link) return;
+
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    modal.hidden = false;
+  });
+
+  function closeModal() {
+    modal.hidden = true;
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+  modal.querySelector('.privacy-modal-backdrop')?.addEventListener('click', closeModal);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.hidden) closeModal();
+  });
+}
+
 /* ── Initialize Everything ── */
 document.addEventListener('DOMContentLoaded', () => {
   initTiltEffect();
@@ -379,4 +404,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeroParallax();
   initSmoothScroll();
   initFormInteractions();
+  initPrivacyModal();
 });
