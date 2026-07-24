@@ -132,28 +132,11 @@ img {
 
 .nav {
   display: grid;
-  grid-template-columns: auto 1fr auto 1fr auto;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 0;
+  gap: 1rem;
+  padding: 0.75rem 0;
   position: relative;
-}
-
-.nav-logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  text-decoration: none;
-  grid-column: 1;
-}
-
-.nav-logo img {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
 }
 
 .nav-side {
@@ -165,13 +148,39 @@ img {
 .nav-left {
   justify-self: end;
   padding-right: 1.5rem;
-  grid-column: 2;
 }
 
 .nav-right {
   justify-self: start;
   padding-left: 1.5rem;
-  grid-column: 4;
+}
+
+.brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.35rem, 2.8vw, 1.85rem);
+  font-weight: 500;
+  text-decoration: none;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  justify-self: center;
+  grid-column: 2;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.brand img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.brand span {
+  letter-spacing: 0.22em;
 }
 
 .nav-side a {
@@ -3064,6 +3073,90 @@ a:focus-visible {
   transform: translateY(0);
 }
 
+
+/* ═════════════════════════════════════════════════════════
+   SYNERGY SECTION LAYOUT
+   ═════════════════════════════════════════════════════════ */
+
+.synergy-image-row img {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.synergy-image-row img:hover {
+  transform: translateY(-4px) scale(1.08);
+  box-shadow: 0 8px 20px rgba(184, 155, 94, 0.2);
+}
+
+.synergy-stat-card {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.synergy-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(184, 155, 94, 0.15);
+}
+
+.synergy-feature-card {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.synergy-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(184, 155, 94, 0.15);
+}
+
+/* ═════════════════════════════════════════════════════════
+   MAXIMIZED CARD SIZES
+   ═════════════════════════════════════════════════════════ */
+
+.panel {
+  padding: 2rem;
+}
+
+.stat-card {
+  padding: 1.5rem;
+}
+
+.expectation-stat {
+  padding: 1.25rem;
+}
+
+.applicator-card {
+  padding: 1.5rem 1.25rem;
+}
+
+.applicator-card img {
+  max-height: 150px;
+}
+
+.inquiry-type-card {
+  padding: 1.5rem;
+}
+
+.contact-card {
+  padding: 2.5rem;
+}
+
+.tech-badge {
+  padding: 1.25rem 1.5rem;
+  min-width: 160px;
+}
+
+.tech-feature {
+  padding: 1.25rem 1.5rem;
+}
+
+.benefit-icon {
+  padding: 0.85rem 1rem;
+}
+
+.benefit-icon .icon-circle {
+  width: 40px;
+  height: 40px;
+  font-size: 0.9rem;
+}
 
 /* ── Keyframe Animations ── */
 @keyframes pulseGlow {
