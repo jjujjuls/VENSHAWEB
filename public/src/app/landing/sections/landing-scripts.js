@@ -198,89 +198,28 @@ function updateTechContent(key) {
   if (techDesc) techDesc.textContent = data.desc;
   if (techImage) techImage.src = data.image;
 
-  /* ── Synergy tab: custom layout with image row, stats, and features ── */
+  /* ── Synergy tab: custom layout with banner image, single maximized div, no duplicate content ── */
+  const techPanelEl = document.querySelector('.tech-panel');
   const visualWrapEl = document.querySelector('.tech-visual-wrap');
-  if (visualWrapEl) {
-    const existingCollage = visualWrapEl.querySelector('.synergy-collage');
-    if (existingCollage) existingCollage.remove();
+  const techContent = document.getElementById('techContent');
 
-    if (key === 'synergy') {
-      visualWrapEl.style.display = 'none';
+  if (key === 'synergy') {
+    if (techPanelEl) techPanelEl.classList.add('is-synergy');
+    if (visualWrapEl) visualWrapEl.style.display = 'none';
 
-      /* Remove any existing synergy content */
-      document.querySelectorAll('.tech-content .synergy-image-row, .tech-content .synergy-stats, .tech-content .synergy-features').forEach(el => el.remove());
+    /* Remove any existing synergy content */
+    document.querySelectorAll('.tech-content .synergy-banner-wrap, .tech-content .synergy-image-row, .tech-content .synergy-stats, .tech-content .synergy-features').forEach((el) => el.remove());
 
-      const techContent = document.getElementById('techContent');
-      if (techContent) {
-        /* 1. Technology image row (5 images in a horizontal row) */
-        const imageRow = document.createElement('div');
-        imageRow.className = 'synergy-image-row';
-        imageRow.style.cssText = 'display:flex;justify-content:center;gap:1rem;margin:1.5rem 0;flex-wrap:wrap;';
-
-        const synergyImages = [
-          { src: 'assets/images/vacuumRoller-removebg-preview.png', alt: 'Vacuum Roller' },
-          { src: 'assets/images/multiPolarRF-removebg-preview.png', alt: 'Multi-Polar RF' },
-          { src: 'assets/images/bipolarRF-removebg-preview.png', alt: 'Bi-Polar RF' },
-          { src: 'assets/images/cavitation-removebg-preview.png', alt: 'Cavitation' },
-          { src: 'assets/images/synergy-infographic.jpg', alt: 'Full Synergy' },
-        ];
-
-        synergyImages.forEach(img => {
-          const imgEl = document.createElement('img');
-          imgEl.src = img.src;
-          imgEl.alt = img.alt;
-          imgEl.style.cssText = 'width:72px;height:72px;object-fit:contain;border-radius:12px;';
-          imageRow.appendChild(imgEl);
-        });
-
-        techContent.insertBefore(imageRow, techContent.children[2]);
-
-        /* 2. Stats cards (2 side by side) */
-        const statsRow = document.createElement('div');
-        statsRow.className = 'synergy-stats';
-        statsRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0;max-width:600px;';
-
-        const statsData = [
-          { value: '5-in-1', label: 'Technology' },
-          { value: '800W', label: 'Maximum Output' },
-        ];
-
-        statsData.forEach(stat => {
-          const card = document.createElement('div');
-          card.className = 'tech-badge synergy-stat-card';
-          card.style.cssText = 'text-align:center;padding:1.5rem 1rem;background:var(--bg-soft);border:1px solid var(--border);border-radius:14px;';
-          card.innerHTML = `<span class="tech-badge-value" style="font-size:2rem;">${stat.value}</span><span class="tech-badge-label" style="font-size:0.78rem;">${stat.label}</span>`;
-          statsRow.appendChild(card);
-        });
-
-        techContent.insertBefore(statsRow, imageRow.nextSibling);
-
-        /* 3. Feature cards (2x2 grid) */
-        const featuresGrid = document.createElement('div');
-        featuresGrid.className = 'synergy-features';
-        featuresGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0;max-width:600px;';
-
-        const featuresData = [
-          { title: 'Fat Reduction', desc: 'Ultrasound cavitation' },
-          { title: 'Metabolism Boost', desc: 'Near-infrared light' },
-          { title: 'Skin Tightening', desc: 'Radio frequency' },
-          { title: 'Circulation', desc: 'Vacuum roller optimization' },
-        ];
-
-        featuresData.forEach(f => {
-          const card = document.createElement('div');
-          card.className = 'tech-feature synergy-feature-card';
-          card.style.cssText = 'padding:1.25rem;background:#FAFAFA;border:1px solid rgba(0,0,0,0.06);border-radius:14px;text-align:center;';
-          card.innerHTML = `<span class="tech-feature-check" style="display:inline-flex;margin-bottom:0.5rem;">✓</span><div style="display:flex;flex-direction:column;align-items:center;text-align:center;"><strong>${f.title}</strong><span>${f.desc}</span></div>`;
-          featuresGrid.appendChild(card);
-        });
-
-        techContent.insertBefore(featuresGrid, statsRow.nextSibling);
-      }
-    } else {
-      visualWrapEl.style.display = '';
-      document.querySelectorAll('.tech-content .synergy-image-row, .tech-content .synergy-stats, .tech-content .synergy-features').forEach(el => el.remove());
+    if (techContent) {
+      const bannerWrap = document.createElement('div');
+      bannerWrap.className = 'synergy-banner-wrap';
+      bannerWrap.innerHTML = `<img src="assets/images/fullDimensionalEffect.png" alt="Full-Dimensional Synergy" class="synergy-banner-img" />`;
+      techContent.insertBefore(bannerWrap, techContent.children[2]);
     }
+  } else {
+    if (techPanelEl) techPanelEl.classList.remove('is-synergy');
+    if (visualWrapEl) visualWrapEl.style.display = '';
+    document.querySelectorAll('.tech-content .synergy-banner-wrap, .tech-content .synergy-image-row, .tech-content .synergy-stats, .tech-content .synergy-features').forEach((el) => el.remove());
   }
 }
 
