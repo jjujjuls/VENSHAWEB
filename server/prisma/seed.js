@@ -18,10 +18,7 @@ export async function seedDatabase() {
   const settings = [
     { key: 'contact_phone', value: '09921209631' },
     { key: 'contact_email', value: 'venshaskin@gmail.com' },
-    {
-      key: 'contact_address',
-      value: 'Alabang-Zapote Road, Pamplona Tres, Las Piñas, 1747 Metro Manila',
-    },
+    { key: 'contact_address', value: 'Investment Dr, Almanza Uno, Las Piñas, 1750 Metro Manila' },
     { key: 'tagline', value: 'Sculpt. Strengthen. Radiate.' },
     { key: 'business_hours', value: 'Open Mon–Sat' },
     { key: 'site_coming_soon', value: 'false' },
@@ -106,7 +103,7 @@ export async function seedDatabase() {
 
   /* ─── Seed FAQs ─── */
   const faqs = [
-    { question: 'What is Megashape Pro?', answer: 'A multi-technology body contouring system combining vacuum roller, cavitation, RF, and infrared light for sculpting and skin improvement.', displayOrder: 1 },
+    { question: 'What is Contour Pro Max?', answer: 'A multi-technology body contouring system combining vacuum roller, cavitation, RF, and infrared light for sculpting and skin improvement.', displayOrder: 1 },
     { question: 'Is it suitable for everyone?', answer: 'No. Suitability is determined during consultation based on health history, goals, and treatment expectations.', displayOrder: 2 },
     { question: 'What should I expect from treatment?', answer: 'A guided, professional experience with clear communication, realistic outcomes, and aftercare support. No downtime required.', displayOrder: 3 },
     { question: 'How many sessions are recommended?', answer: 'Typically 6–12 sessions depending on your goals. Your consultant will create a personalized treatment plan.', displayOrder: 4 },
@@ -130,7 +127,7 @@ export async function seedDatabase() {
   const gallery = [
     { title: 'Clinic Reception', imageUrl: '/assets/images/export/placeholder.jpg', caption: 'Our welcoming reception area', category: 'Clinic', displayOrder: 1 },
     { title: 'Treatment Room', imageUrl: '/assets/images/export/placeholder.jpg', caption: 'State-of-the-art treatment room', category: 'Clinic', displayOrder: 2 },
-    { title: 'Megashape Pro Device', imageUrl: '/assets/images/export/placeholder.jpg', caption: 'The Megashape Pro system', category: 'Equipment', displayOrder: 3 },
+    { title: 'Contour Pro Max Device', imageUrl: '/assets/images/export/placeholder.jpg', caption: 'The Contour Pro Max system', category: 'Equipment', displayOrder: 3 },
   ];
   for (const g of gallery) {
     await prisma.galleryItem.create({ data: g }).catch(() => {});
@@ -149,13 +146,13 @@ export async function seedDatabase() {
   /* ─── Seed Website Content ─── */
   const websiteContent = [
     { key: 'hero_title', section: 'hero', value: 'Beautiful figure.<br />Timeless elegance.', type: 'text' },
-    { key: 'hero_subtitle', section: 'hero', value: 'Your curves—eternalized by Megashape Pro. A revolutionary cellulite treatment that is safe, effective, and requires no downtime.', type: 'text' },
+    { key: 'hero_subtitle', section: 'hero', value: 'Your curves—eternalized by Contour Pro Max. A revolutionary cellulite treatment that is safe, effective, and requires no downtime.', type: 'text' },
     { key: 'hero_tagline', section: 'hero', value: 'Sculpt · Strengthen · Radiate', type: 'text' },
     { key: 'about_title', section: 'about', value: 'A refined approach to medical aesthetics', type: 'text' },
     { key: 'about_description', section: 'about', value: 'Premium care, thoughtful education, and calm professionalism—guiding clients with clarity toward informed treatment decisions.', type: 'text' },
     { key: 'contact_phone', section: 'contact', value: '09921209631', type: 'text' },
     { key: 'contact_email', section: 'contact', value: 'venshaskin@gmail.com', type: 'text' },
-    { key: 'contact_address', section: 'contact', value: 'Alabang-Zapote Road, Pamplona Tres, Las Piñas, 1747 Metro Manila', type: 'text' },
+    { key: 'contact_address', section: 'contact', value: 'Investment Dr, Almanza Uno, Las Piñas, 1750 Metro Manila', type: 'text' },
     { key: 'contact_hours', section: 'contact', value: 'Open Mon–Sat', type: 'text' },
     { key: 'social_instagram', section: 'social', value: 'venshaskin', type: 'text' },
     { key: 'social_facebook', section: 'social', value: 'VENSHASKIN', type: 'text' },

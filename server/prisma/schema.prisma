@@ -81,7 +81,7 @@ model MachineInquiry {
   purchaseTimeline String?
   phone            String
   email            String
-  machineModel     String   @default("Megashape Pro")
+  machineModel     String   @default("Contour Pro Max")
   quantity         Int      @default(1)
   intendedUse      String?
   message          String?

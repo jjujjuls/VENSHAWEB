@@ -227,3 +227,156 @@ document.querySelectorAll('.applicator-card').forEach((card) => {
     setTimeout(() => matchingTab.click(), 400);
   });
 });
+
+/* ═══════════════════════════════════════════
+   ENHANCED INTERACTIVE ANIMATIONS
+   ═══════════════════════════════════════════ */
+
+/* ── 1. 3D Mouse-Tracking Tilt Effect on Cards ── */
+function initTiltEffect() {
+  const tiltCards = document.querySelectorAll(
+    '.panel, .contact-card, .applicator-card, .inquiry-type-card, .stat-card, .expectation-stat'
+  );
+
+  tiltCards.forEach((card) => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      const rotateX = ((y - centerY) / centerY) * -6;
+      const rotateY = ((x - centerX) / centerX) * 6;
+
+      card.style.setProperty('--tilt-x', `${rotateY}deg`);
+      card.style.setProperty('--tilt-y', `${rotateX}deg`);
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      card.style.setProperty('--tilt-x', '0deg');
+      card.style.setProperty('--tilt-y', '0deg');
+    });
+  });
+}
+
+/* ── 2. Counter Animation for Stats ── */
+function animateCounter(el, start, end, duration = 1500, suffix = '') {
+  if (!el) return;
+  const startTime = performance.now();
+
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(start + (end - start) * eased);
+    el.textContent = current + suffix;
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    } else {
+      el.textContent = end + suffix;
+    }
+  }
+
+  requestAnimationFrame(update);
+}
+
+function initCounterAnimations() {
+  const statValues = document.querySelectorAll('.stat-value');
+  const counters = [];
+
+  statValues.forEach((el) => {
+    const text = el.textContent.trim();
+    const num = parseInt(text.replace(/[^0-9]/g, ''));
+    const suffix = text.replace(/[0-9]/g, '');
+    if (!isNaN(num)) {
+      el.textContent = '0';
+      counters.push({ el, target: num, suffix });
+    }
+  });
+
+  if (!counters.length) return;
+
+  const counterObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const idx = counters.findIndex((c) => c.el === entry.target);
+          if (idx !== -1) {
+            const c = counters[idx];
+            animateCounter(c.el, 0, c.target, 1500, c.suffix);
+            counterObserver.unobserve(entry.target);
+          }
+        }
+      });
+    },
+    { threshold: 0.5 }
+  );
+
+  counters.forEach((c) => counterObserver.observe(c.el));
+}
+
+/* ── 3. Hero Parallax on Scroll ── */
+function initHeroParallax() {
+  const heroImage = document.querySelector('.hero-image');
+  const heroSection = document.querySelector('.site-header');
+  if (!heroImage || !heroSection) return;
+
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    const sectionTop = heroSection.offsetTop;
+    const sectionHeight = heroSection.offsetHeight;
+    const relativeScroll = scrollY - sectionTop;
+
+    if (relativeScroll >= 0 && relativeScroll <= sectionHeight) {
+      const translateY = relativeScroll * 0.15;
+      heroImage.style.transform = `translateY(${translateY}px)`;
+    }
+  }, { passive: true });
+}
+
+/* ── 4. Smooth Scroll for Anchor Links ── */
+function initSmoothScroll() {
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener('click', (e) => {
+      const targetId = anchor.getAttribute('href');
+      if (!targetId || targetId === '#') return;
+      const target = document.querySelector(targetId);
+      if (target) {
+        e.preventDefault();
+        const navHeight = document.getElementById('navShell')?.offsetHeight || 0;
+        const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight - 10;
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth',
+        });
+      }
+    });
+  });
+}
+
+/* ── 5. Booking Form Focus Glow ── */
+function initFormInteractions() {
+  const formInputs = document.querySelectorAll('.booking-form input, .booking-form select, .booking-form textarea');
+  formInputs.forEach((input) => {
+    input.addEventListener('focus', () => {
+      const label = input.closest('label');
+      if (label) label.style.color = 'var(--accent-dark)';
+    });
+    input.addEventListener('blur', () => {
+      const label = input.closest('label');
+      if (label) label.style.color = '';
+    });
+  });
+}
+
+/* ── Initialize Everything ── */
+document.addEventListener('DOMContentLoaded', () => {
+  initTiltEffect();
+  initCounterAnimations();
+  initHeroParallax();
+  initSmoothScroll();
+  initFormInteractions();
+});

@@ -306,7 +306,7 @@ async function buildAdminNotificationEmail(type, data) {
     
     dashboardUrl = `${process.env.PUBLIC_URL || 'http://localhost:3000'}/admin#consultations`;
   } else if (type === 'purchase') {
-    inquiryTypeLabel = '✓ Purchase a Megashape Pro Machine';
+    inquiryTypeLabel = '✓ Purchase a Contour Pro Max Machine';
     sectionLabel = 'Business Information';
     
     fieldsHtml += buildRow('Name', data.name);

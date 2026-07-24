@@ -30,7 +30,7 @@ import { api, setToken, setUser, requireGuest, showMsg, logout, supabase } from 
 
     /* Update document title */
     const titles = {
-      'page-landing': 'VENSHASKIN | Megashape Pro',
+      'page-landing': 'VENSHASKIN | Contour Pro Max',
       'page-login': 'Sign In — VENSHASKIN',
       'page-register': 'Create Account — VENSHASKIN',
       'page-admin': 'Admin Panel — VENSHASKIN',

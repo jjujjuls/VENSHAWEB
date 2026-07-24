@@ -648,7 +648,7 @@ async function loadMachineInquiryDetail(id) {
           <div class="detail-grid">
             <div class="detail-item"><label>Business Name</label><p>${inquiry.businessName || '—'}</p></div>
             <div class="detail-item"><label>Business Type</label><p>${inquiry.businessType || '—'}</p></div>
-            <div class="detail-item"><label>Machine Model</label><p>${inquiry.machineModel || 'Megashape Pro'}</p></div>
+            <div class="detail-item"><label>Machine Model</label><p>${inquiry.machineModel || 'Contour Pro Max'}</p></div>
             <div class="detail-item"><label>Purchase Timeline</label><p>${inquiry.purchaseTimeline || '—'}</p></div>
           </div>
         </div>
@@ -702,8 +702,8 @@ async function loadMachineInquiryDetail(id) {
 
 function openMachineReplyModal(inquiry) {
   const name = inquiry.name || 'Valued Client';
-  const defaultSubject = 'Thank You for Your Interest in Megashape Pro';
-  const defaultMessage = `Hello ${name},\n\nThank you for your interest in the Megashape Pro.\n\nOne of our specialists will contact you shortly regarding pricing, demonstrations, financing options, and availability.\n\nThank you,\nVENSHA SKIN`;
+  const defaultSubject = 'Thank You for Your Interest in Contour Pro Max';
+  const defaultMessage = `Hello ${name},\n\nThank you for your interest in the Contour Pro Max.\n\nOne of our specialists will contact you shortly regarding pricing, demonstrations, financing options, and availability.\n\nThank you,\nVENSHA SKIN`;
   
   openReplyModalGeneric({
     id: inquiry.id,

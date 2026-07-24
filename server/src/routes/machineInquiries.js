@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
         purchaseTimeline: purchaseTimeline?.trim() || null,
         phone: phone.trim(),
         email: email.trim(),
-        machineModel: machineModel?.trim() || 'Megashape Pro',
+        machineModel: machineModel?.trim() || 'Contour Pro Max',
         quantity: Math.max(1, Number(quantity) || 1),
         intendedUse: intendedUse?.trim() || null,
         message: message?.trim() || null,
