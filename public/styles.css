@@ -1520,23 +1520,38 @@ h3 {
   display: block;
 }
 
+.results-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.75rem 1.25rem;
+}
+
+.results-center h3,
+.results-center p {
+  text-align: center;
+}
+
 .benefit-icons {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.65rem;
-  margin: 1.25rem 0;
+  margin: 1.25rem auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .benefit-icon {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.55rem;
   font-size: 0.73rem;
   font-weight: 500;
   line-height: 1.25;
   color: var(--muted);
-  padding: 0.55rem 0.65rem;
+  padding: 0.65rem 0.5rem;
   border-radius: 24px;
   border: 1px solid rgba(17, 17, 17, 0.08);
   background: rgba(255, 255, 255, 0.6);
@@ -1546,13 +1561,14 @@ h3 {
   width: 100%;
   min-width: 0;
   overflow: hidden;
+  text-align: center;
 }
 
 .benefit-icon span:not(.icon-circle) {
   min-width: 0;
+  text-align: center;
   overflow-wrap: break-word;
   word-break: break-word;
-  flex: 1;
 }
 
 .benefit-icon:hover {
