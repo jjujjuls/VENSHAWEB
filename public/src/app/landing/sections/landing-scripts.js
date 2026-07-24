@@ -271,7 +271,7 @@ function updateTechContent(key) {
           const card = document.createElement('div');
           card.className = 'tech-feature synergy-feature-card';
           card.style.cssText = 'padding:1.25rem;background:#FAFAFA;border:1px solid rgba(0,0,0,0.06);border-radius:14px;text-align:center;';
-          card.innerHTML = `<span class="tech-feature-check" style="display:inline-flex;margin-bottom:0.5rem;">✓</span><div><strong>${f.title}</strong><span>${f.desc}</span></div>`;
+          card.innerHTML = `<span class="tech-feature-check" style="display:inline-flex;margin-bottom:0.5rem;">✓</span><div style="display:flex;flex-direction:column;align-items:center;text-align:center;"><strong>${f.title}</strong><span>${f.desc}</span></div>`;
           featuresGrid.appendChild(card);
         });
 
